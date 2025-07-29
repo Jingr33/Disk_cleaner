@@ -23,6 +23,7 @@ AUTO_REMOVE_SIMILARITY = 1.0 # above this simililarity, the second file will be 
 
 
 FILE_TYPES = ["text", "docx", "doc", "pdf", "spreadsheet", "pptx", "image", "htm", 'other']
+ERRORS = []
 
 # HASHES
 def extract_text_file(path: Path) -> str:
@@ -48,6 +49,7 @@ def extract_doc_file(path: Path) -> str:
     
     except Exception as e:
         print(f"Chyba při čtení DOC ({path.name}): {e}")
+        add_to_corrupted(path)
         return ""
 
 def extract_docx_file(path: Path) -> str:
@@ -60,6 +62,7 @@ def extract_docx_file(path: Path) -> str:
             return None
     except Exception as e:
         print(f"Selhalo zpracování souboru {path}: {e}")
+        add_to_corrupted(path)
         return None
 
 def _read_pdf(path: Path) -> str:
@@ -77,12 +80,15 @@ def extract_pdf_file(path: Path) -> str:
             return future.result(timeout=4)    
     except TimeoutError:
         print(f"Timeout při čtení PDF: {path}")
+        add_to_corrupted(path)
         return None
     except PdfReadError as e:
         print(f"Chyba při čtení PDF ({path}): {e}")
+        add_to_corrupted(path)
         return None
     except Exception as e:
         print(f"Jiná chyba při PDF ({path}): {e}")
+        add_to_corrupted(path)
         return None
 
 def extract_spreadsheet_file(path: Path) -> str:
@@ -93,6 +99,7 @@ def extract_spreadsheet_file(path: Path) -> str:
             df = pd.read_excel(path, engine='openpyxl')
         return df.to_csv(index=False)
     except:
+        add_to_corrupted(path)
         return None
     
 def extract_ppt_file(path: Path) -> str:
@@ -105,6 +112,7 @@ def extract_ppt_file(path: Path) -> str:
                     text_runs.append(shape.text)
         return "\n".join(text_runs)
     except Exception as e:
+        add_to_corrupted(path)
         return f"ERROR: {e}"
 
 def extract_htm_file(path: Path) -> str:
@@ -113,6 +121,7 @@ def extract_htm_file(path: Path) -> str:
             soup = BeautifulSoup(f, "html.parser")
         return soup.get_text()
     except Exception as e:
+        add_to_corrupted(path)
         return f"ERROR: {e}"
 
 def get_image_phash(path: Path):
@@ -121,6 +130,7 @@ def get_image_phash(path: Path):
         return str(hash)
     except Exception as e:
         print(f"Chyba při zpracování {path}: {e}")
+        add_to_corrupted(path)
         return None
  
 def count_hashes(sorted_files : dict) -> dict:
@@ -178,6 +188,7 @@ def remove_wave_starters(file_paths : list) -> list:
             del file_paths[i]
             print(f"\nSoubor {path.name} byl odstraněn.")
     print("\n\n\n")
+    return file_paths
 
 def sort_by_extension(unsorted_files : list) -> dict:
     """Sort files into groups by file type."""
@@ -278,6 +289,7 @@ def is_file_locked(path: Path) -> bool:
         with open(path, "a"):
             return False
     except IOError:
+        add_to_corrupted(path)
         return True
     
 def find_same_names(files : list) -> list:
@@ -331,14 +343,35 @@ def files_exists(paths : tuple) -> bool:
             return False
     return True
 
-all_files = explore_folder(ROOT_FOLDER, [])
-# all_files = remove_wave_starters(all_files)
-# sorted_files = sort_by_extension(all_files)
-# print_file_counts(sorted_files)
-# sorted_files = select_entered_file_types(sorted_files)
-# hashed_files = count_hashes(sorted_files)
-# # removing
-# manage_removing(hashed_files)
+# LOGGING OF CORRUPTED FILES
+def add_to_corrupted(path: Path) -> None:
+    global ERRORS
+    ERRORS.append(path)
 
-duplicities = find_same_names(all_files)
-remove_duplicate_name_files(duplicities)
+def log_corrupted_files() -> None:
+    log_file_name = "corrupted_files.csv"
+    log_file_exists = os.path.exists(log_file_name)
+
+    df = pd.DataFrame(ERRORS)
+    df.to_csv(
+        log_file_name,
+        mode="a" if log_file_exists else "w",
+        header=False,
+        index=False,
+        encoding="utf-8"
+    )
+
+# RUN
+all_files = explore_folder(ROOT_FOLDER, [])
+all_files = remove_wave_starters(all_files)
+sorted_files = sort_by_extension(all_files)
+print_file_counts(sorted_files)
+sorted_files = select_entered_file_types(sorted_files)
+hashed_files = count_hashes(sorted_files)
+# removing
+manage_removing(hashed_files)
+
+# duplicities = find_same_names(all_files)
+# remove_duplicate_name_files(duplicities)
+
+log_corrupted_files()

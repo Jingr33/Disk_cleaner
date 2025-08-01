@@ -40,6 +40,8 @@ def extract_doc_file(path: Path) -> str:
         doc = word.Documents.Open(str(path))
         try:
             text = doc.Content.Text
+        except:
+            print("count hash doc souboru se nezdaril.")
         finally:
             doc.Close(False)
             word.Quit()

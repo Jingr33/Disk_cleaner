@@ -6,5 +6,13 @@
   "code-runner.fileDirectoryAsCwd": true,
   "code-runner.runInTerminal": true,
   "code-runner.executorMap.python": "python code/main.py",
-  "python.envFile": "${workspaceFolder}/.env"
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.analysis.extraPaths": [
+    "./code",
+    "./code",
+    "./code",
+    "./code",
+    "./code",
+    "./code"
+  ]
 }

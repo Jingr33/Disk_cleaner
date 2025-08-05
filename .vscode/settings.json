@@ -1,0 +1,18 @@
+{
+  "python.defaultInterpreterPath": "venv/bin/python",  // nebo např. "C:/Users/.../python.exe"
+  "code-runner.executorMap": {
+    "python": "python"
+  },
+  "code-runner.fileDirectoryAsCwd": true,
+  "code-runner.runInTerminal": true,
+  "code-runner.executorMap.python": "python code/main.py",
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.analysis.extraPaths": [
+    "./code",
+    "./code",
+    "./code",
+    "./code",
+    "./code",
+    "./code"
+  ]
+}

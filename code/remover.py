@@ -1,9 +1,8 @@
-import os
 from pathlib import Path
-from difflib import SequenceMatcher
 import argparse
 from tqdm import tqdm
 
+from hasher import Hasher
 from console_writer import ConsoleWriter
 from config import AUTO_REMOVE_SIMILARITY, MIN_SIMILARITY
 
@@ -34,41 +33,37 @@ class Remover():
     def hash_based_pruning(self, all_hashed_files : dict) -> None:
         """Remove similar files (from all files dict) depends on percentual hash ratio of two files."""
         for ftype in all_hashed_files.keys():
-            self._hash_based_pruning_of_type(all_hashed_files[ftype])
+            self._hash_based_pruning_of_type(all_hashed_files[ftype], ftype)
 
-    def _hash_based_pruning_of_type(self, hashed_files : list[tuple]) -> None:
+    def _hash_based_pruning_of_type(self, hashed_files : list[tuple], file_type : str) -> None:
         """Remove similar files (of one file type) depends on percentual hash ratio of two files."""
-        while len(hashed_files) > 1:
-            print(len(hashed_files))
-            (file1, hash1) = hashed_files.pop(-1)
-            self._compare_hash_with_others(file1, hash1, hashed_files)
+        # while len(hashed_files) > 1:
+        #     print(len(hashed_files))
+        #     (file1, hash1) = hashed_files.pop(-1)
+        #     self._compare_hash_with_others(file1, hash1, hashed_files, file_type)¨
+        for i in range(len(hashed_files) - 1, -1, -1):
+            self._compare_two_files(hashed_files, i, file_type)
 
-    def _compare_hash_with_others(self, file1 : Path, hash1 : str, hashed_files : list[tuple]) -> None:
+    def _compare_two_files(self,hashed_files : list[tuple], f1_idx : int, ftype : str) -> None:
         """compare entered file hash with all others and remove one of them depending on simiarity"""
-        for idx_file2 in range(len(hashed_files) - 1, -1, -1):
-            (file2, hash2) = hashed_files[idx_file2]
-            sim_score = Remover._similarity_score(hash1, hash2)
+        file1, hash1 = hashed_files[f1_idx]
+        file2, hash2 = hashed_files[f1_idx - 1]
+        sim_score = Hasher.similarity_score(hash1, hash2, ftype)
 
-            if sim_score < self.minimal_similarity:
-                continue
+        if sim_score < self.minimal_similarity:
+            return
 
-            if sim_score >= self.auto_remove_similarity:
-                hashed_files = self._remove_file_automaticly(hashed_files, idx_file2)
-            else:
-                hashed_files = self._ask_for_remove(hashed_files, file1, file2, sim_score, idx_file2)
+        if sim_score >= self.auto_remove_similarity:
+            hashed_files = self._remove_file_automaticly(hashed_files, f1_idx)
+        else:
+            hashed_files = self._ask_for_remove(hashed_files, file1, file2, sim_score, f1_idx)
 
     def _remove_file_automaticly(self, hashed_files : list[tuple], removing_idx : int) -> list[tuple]:
-        """remove file from disk and from list."""
+        """Remove file from the disk and from list."""
         (file, _) = hashed_files.pop(removing_idx)
         file.unlink()
-        ConsoleWriter.file_deleted()
+        ConsoleWriter.file_deleted(file)
         return hashed_files
-
-    def _similarity_score(hash1: str, hash2: str) -> float:
-        """Count percentual similarity of two files."""
-        if hash1 is None or hash2 is None:
-            return float(0)
-        return SequenceMatcher(None, hash1, hash2).ratio()
 
     def _ask_for_remove(self, hashed_files : list, fpath1 : Path, fpath2 : Path, sim_score, idx_file2 : int) -> list:
         """Ask user for remove, if the similarity is between AUTO_REMOVE value and MIN_SIMILARITY value."""
@@ -119,18 +114,19 @@ class Remover():
         ConsoleWriter.same_name_files_count(len(duplicities))
         return duplicities
 
-    def _remove_duplicate_name_files(name_duplicities : list[tuple], sorted_files : dict) -> None:
+    def _remove_duplicate_name_files(name_duplicities : list[tuple]) -> None:
         remove_all_automaticly = False
         while len(name_duplicities):
             (path1, path2) = name_duplicities[0]
+            user_input = 'n'
             ConsoleWriter.duplicity_file_name_detected(path1, path2)
             if not remove_all_automaticly:
                 user_input = ConsoleWriter.ask_remove_duplicity_name_files()
 
-            if user_input == "All" or remove_all_automaticly:
+            if user_input == 'All' or remove_all_automaticly:
                     name_duplicities = Remover._remove_duplicate_name_file(name_duplicities, 0)
                     remove_all_automaticly = True
-            elif user_input == "Y":
+            elif user_input == 'Y':
                 name_duplicities = Remover._remove_duplicate_name_file(name_duplicities, 0)
             else:
                 del name_duplicities[0]

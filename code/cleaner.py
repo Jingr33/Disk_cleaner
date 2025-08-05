@@ -51,7 +51,7 @@ class Cleaner():
         if print_result:
             ConsoleWriter.explore_files_progress(self.total_files, False)
         return files
-
+ 
     def _prepare_for_cleaning(self) -> None:
         """Preparedata structures for cleaning 
         (sorted_files, file_with_hashes, pick ifles to process.)"""

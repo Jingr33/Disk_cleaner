@@ -46,13 +46,13 @@ class ConsoleWriter():
         path1 = ConsoleWriter._get_path_type(path1, long_path)
         path2 = ConsoleWriter._get_path_type(path2, long_path)
         ConsoleWriter._spacer()
-        print(f'There is similarity {round(score * 100, 2)} % between {path1} and {path2} files.')
+        console.print(f'There is similarity [blue]{round(score * 100, 2)} %[/] between {path1} and {path2} files.')
 
     def do_you_want_to_remove_file(path : Path, long_path : bool = False) -> bool:
         path = ConsoleWriter._get_path_type(path, long_path)
         ConsoleWriter._spacer()
-        if input(f'Do you want to delete the file {path}? (Y/n)') != 'Y':
-            print(f'File {path} was saved.')
+        if input(f'Do you want to delete the file {path}? (Y/n)\n') != 'Y':
+            console.print(f'File {path} was [yellow]saved[/].')
             return False
         return True
 
@@ -111,3 +111,7 @@ class ConsoleWriter():
     def _live_spinnner_content():
         """Return live spinner with content."""
         return Spinner("dots", text="Comparing files...")
+
+    def print(content : str) -> None:
+        """Print into console via rich."""
+        console.print(content)

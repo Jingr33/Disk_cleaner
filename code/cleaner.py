@@ -1,8 +1,7 @@
+import sys
 import os
 from pathlib import Path
 import argparse
-from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from remover import Remover
 from sorter import Sorter
@@ -28,9 +27,13 @@ class Cleaner():
 
     def _set_disk_root(self, root_arg : argparse.Namespace) -> str:
         """Set root folder of the disk depends on args."""
-        if root_arg == "":
-            return root_arg
-        return ROOT_FOLDER
+        root = ROOT_FOLDER
+        if root_arg != "":
+            root = root_arg
+        if not Path(root).exists() or not Path(root).is_dir():
+            ConsoleWriter.root_folder_not_found(root)
+            sys.exit()
+        return root
 
     def _explore_disk(self, folder_path : str, files : list[Path], 
                       print_result : bool = False) -> list[Path]:

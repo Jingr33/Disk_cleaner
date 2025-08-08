@@ -112,6 +112,10 @@ class ConsoleWriter():
         """Return live spinner with content."""
         return Spinner("dots", text="Comparing files...")
 
+    def root_folder_not_found(path : str) -> None:
+        """Print root folder was not found info."""
+        console.print(f"This root  {path} [red]folder doesn't exists[/] in your disk.")
+
     def print(content : str) -> None:
         """Print into console via rich."""
         console.print(content)

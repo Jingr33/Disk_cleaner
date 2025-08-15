@@ -2,7 +2,8 @@ from pathlib import Path
 import argparse
 from tqdm import tqdm
 
-from hasher import Hasher
+from hashers.hasher import Hasher
+from  ai_comparer import AiComparer
 from console_writer import ConsoleWriter
 from config import AUTO_REMOVE_SIMILARITY, MIN_SIMILARITY
 
@@ -11,7 +12,9 @@ class Remover():
                arg_minsim : argparse.Namespace, 
                arg_autosim : argparse.Namespace):
         self.files = files
+        # self.ai_comparer = AiComparer()
         self._set_similarities_thresholds(arg_minsim, arg_autosim)
+
 
     def _set_similarities_thresholds(self, minsim : argparse.Namespace, autosim : argparse.Namespace) -> None:
         self.minimal_similarity = MIN_SIMILARITY
@@ -70,6 +73,9 @@ class Remover():
         ConsoleWriter.file_similarity_score(sim_score, fpath1, fpath2)
         # os.startfile(fpath1)
         # os.startfile(fpath2)
+
+        # ai_response = self.ai_comparer.get_chat_gpt_recomandation()
+        # print response
 
         if not ConsoleWriter.do_you_want_to_remove_file(fpath2):
             return hashed_files

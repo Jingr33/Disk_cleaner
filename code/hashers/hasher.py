@@ -1,16 +1,15 @@
 from pathlib import Path
 from PIL import Image
 import docx
-import PyPDF2
-from PyPDF2.errors import PdfReadError
 import pandas as pd
 import imagehash
 import pptx
 from bs4 import BeautifulSoup
 from simhash import Simhash
 from difflib import SequenceMatcher
+import fitz
+import io
 from zipfile import is_zipfile
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from tqdm import tqdm
 
 from logger import Logger
@@ -44,12 +43,12 @@ class Hasher():
             for file_path in tqdm(files, desc=hashing_info['hashing'](file_type), unit="file"):
                 file_hash = hash_functions[file_type](file_path)
                 hashed_files[file_type].append((file_path, file_hash))
-            hashed_files[file_type] = Hasher._sort_files_with_hashes_or_default(hashed_files[file_type])
+            hashed_files[file_type] = Hasher._sort_hash_based_or_default(hashed_files[file_type])
 
         hashing_info['end']()
         return hashed_files
 
-    def _sort_files_with_hashes_or_default(hashed_files : list[tuple]) -> list[tuple]:
+    def _sort_hash_based_or_default(hashed_files : list[tuple]) -> list[tuple]:
         """Sort hashes of file, if it is possible."""
         if hashed_files[0][1] is not int:
             return hashed_files
@@ -105,31 +104,41 @@ class Hasher():
         #     return ""
         return Hasher._get_simhash_from_text(text)
 
-    def extract_pdf_file(self, path: Path) -> str:
-        """Extract pdf file if it is possible and return content as a string."""
+    def extract_pdf_file(self, path: Path) -> int:
+        """Extract percentual simhash from pdf file. 
+        From text, if it is possible, if not, count image pahsh."""
         with suppress_stderr():
             try:
-                with ThreadPoolExecutor(max_workers=1) as executor:
-                    future = executor.submit(Hasher._read_pdf, path)
-                    return future.result(timeout=4)    
-            except TimeoutError:
-                self.logger.add_to_corrupted(path)
-                return None
-            except PdfReadError as e:
-                self.logger.add_to_corrupted(path)
-                return None
+                text = self.extract_text_fom_pdf(path)
+                simhash = Hasher._get_simhash_from_text(text)
+                if simhash:
+                    return simhash
+                return self.extract_hash_from_pdf_as_image(path)
             except Exception as e:
-                self.logger.add_to_corrupted(path)
+                ConsoleWriter.faild_to_read_pdf(path, e)
                 return None
 
-    def _read_pdf(path: Path) -> str:
-        """Read pdf file, return content as a string."""
+    def extract_text_fom_pdf(self, path : Path) -> int:
         text = ""
-        with open(path, "rb") as f:
-            reader = PyPDF2.PdfReader(f)
-            for page in reader.pages:
-                text += page.extract_text() or ""
+        with fitz.open(path) as pdf:
+            for page in pdf:
+                extracted = page.get_text()
+                if extracted:
+                    text += extracted + "\n"
         return text
+
+    def extract_hash_from_pdf_as_image(self, path : Path) -> int:
+        combined_hash = 0
+        with fitz.open(path) as pdf:
+            for i, page in enumerate(pdf):
+                if i >= 10:
+                    break        
+                pix = page.get_pixmap(dpi=150)
+                img = Image.open(io.BytesIO(pix.tobytes()))
+                phash_val = int(str(imagehash.phash(img)), 16)
+                combined_hash ^= phash_val
+        return combined_hash
+
 
     def extract_spreadsheet_file(self, path: Path) -> str:
         """Extract spreadsheet file, return content as a string."""
@@ -197,9 +206,9 @@ class Hasher():
         """Return similarity score (percentage) of two hashes."""
         if not hash1 or not hash2:
             return 0
-        if file_type in ['text', 'doc', 'docx']:
+        if file_type in ['text', 'doc', 'docx', 'pdf']:
             return Hasher._hamming_similarity_simhash(hash1, hash2)
         elif file_type == 'image':
             return Hasher._hamming_distance_images(hash1, hash2)
         else:
-            return Hasher._sequence_match_similarity(hash1, hash2)
+            return Hasher._sequence_match_similarity(str(hash1), str(hash2))

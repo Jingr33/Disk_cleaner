@@ -116,6 +116,9 @@ class ConsoleWriter():
         """Print root folder was not found info."""
         console.print(f"This root  {path} [red]folder doesn't exists[/] in your disk.")
 
+    def faild_to_read_pdf(path : Path, error : Exception) -> None:
+        console.print(f"Failed to read {path}: {error}")
+
     def print(content : str) -> None:
         """Print into console via rich."""
         console.print(content)

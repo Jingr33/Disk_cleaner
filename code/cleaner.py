@@ -6,7 +6,7 @@ import argparse
 from remover import Remover
 from sorter import Sorter
 from logger import Logger
-from hasher import Hasher
+from hashers.hasher import Hasher
 from console_writer import ConsoleWriter
 from config import *
 

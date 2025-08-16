@@ -1,7 +1,7 @@
 from pathlib import Path
 from simhash import Simhash
 
-from hasher import Hasher
+from hashers.hasher import Hasher
 
 class TextHasher(Hasher):
     def __init__(self):

@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import argparse
 
+from file_data.file_info import FileInfo
 from remover import Remover
 from sorter import Sorter
 from logger import Logger
@@ -14,13 +15,9 @@ class Cleaner():
     def __init__(self, args):
         self.root = self._set_disk_root(args.root)
         self.total_files = 0
-        self.all_files = self._explore_disk(ROOT_FOLDER, [], True)
-        self.sorted_files = {}
-        self.files_with_hashes = {}
-        self._remover = Remover(self.all_files, args.minsim, args.autosim)
-        self._sorter = Sorter(self.all_files)
-        self._logger = Logger()
-        self._hasher = Hasher(self._logger)
+        self.all_file_info = self._explore_disk(ROOT_FOLDER, [], True)
+        self.sorted_file_infos = {}
+        self._init_dependencies(args.minsim, args.autosim)
         self._prepare_for_cleaning()
         self._remove_wave_starters(args.wavers)
         self._clean_with_hash_comparer(args.clean)
@@ -35,6 +32,12 @@ class Cleaner():
             sys.exit()
         return root
 
+    def _init_dependencies(self, minsim : argparse.Namespace, autosim : argparse.Namespace) -> None:
+        self._remover = Remover(self.all_file_info, minsim, autosim)
+        self._sorter = Sorter(self.all_file_info)
+        self._logger = Logger()
+        self._hasher = Hasher(self._sorter, self._logger)
+
     def _explore_disk(self, folder_path : str, files : list[Path], 
                       print_result : bool = False) -> list[Path]:
         """Find all files inside of the root folder."""
@@ -43,14 +46,13 @@ class Cleaner():
             if os.path.isdir(item_path):
                 files = self._explore_disk(item_path, files)
             elif item_path.exists() and item_path.is_file():
-                files.append(item_path)
+                files.append(FileInfo(item_path))
                 self.total_files += 1
             else:
                 # print corrupted file
                 # TODO
                 ...
             ConsoleWriter.explore_files_progress(self.total_files)
-
         if print_result:
             ConsoleWriter.explore_files_progress(self.total_files, False)
         return files
@@ -58,28 +60,26 @@ class Cleaner():
     def _prepare_for_cleaning(self) -> None:
         """Preparedata structures for cleaning 
         (sorted_files, file_with_hashes, pick ifles to process.)"""
-        self.sorted_files = self._sorter.sort_by_extension()
-        ConsoleWriter.file_counts(self.sorted_files)
+        self.sorted_file_infos = self._sorter.sort_by_file_type()
+        ConsoleWriter.file_counts(self.sorted_file_infos)
         self.select_entered_file_types()
-        self.files_with_hashes = self._hasher.count_hashes(self.sorted_files)
+        self._hasher.count_hashes(self.sorted_file_infos)
     
     def _remove_wave_starters(self, wavers_arg : argparse.Namespace) -> None:
         """Remove files with names beginning with tilda."""
         if wavers_arg:
-            self.all_files = Remover.delete_wavers(self.all_files)
+            self.all_file_info = Remover.delete_wavers(self.all_file_info)
     
     def _clean_with_hash_comparer(self, clean_arg : argparse.Namespace):
         """Clean the disk with hash comparsion method."""
         if clean_arg:
-            self._remover.hash_based_pruning(self.files_with_hashes)
+            self._remover.hash_based_pruning(self.sorted_file_infos)
 
     def select_entered_file_types(self) -> None:
-        """Ask user for file types to pruning and remove unselected types from file dict. """
+        """Ask user for file types to pruning.
+        Keep only selected and non-empty keys in sorted dict. """
         user_input = ConsoleWriter.select_file_types_input()
-        keys_to_delete = []
-        for file_type in list(self.sorted_files.keys()):
-            if (file_type not in user_input.lower() 
-                or not self.sorted_files[file_type]):
-                keys_to_delete.append(file_type)
-        for key in keys_to_delete:
-            del self.sorted_files[key]
+        self.sorted_file_infos = {
+            k: v for k, v in self.sorted_file_infos.items()
+            if k.name.lower() in user_input.lower() and v
+        }

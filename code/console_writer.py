@@ -3,6 +3,9 @@ from rich.console import Console
 from rich.live import Live
 from rich.spinner import Spinner
 
+from file_data.file_info import FileInfo
+from file_data.file_type_enum import FileType
+
 class ConsoleWriter():
     global console
     console = Console()
@@ -14,9 +17,9 @@ class ConsoleWriter():
             space += "\n"
         return print(space)
 
-    def file_deleted(path : Path, long_path : bool = False):
+    def file_deleted(file_info : FileInfo, long_path : bool = False):
         """Print file deleted alert."""
-        path = ConsoleWriter._get_path_type(path, long_path)
+        path = ConsoleWriter._get_path_type(file_info, long_path)
         ConsoleWriter._spacer()
         console.print(f'File {path} was [bold red]deleted[/] from disk.')
 
@@ -26,12 +29,13 @@ class ConsoleWriter():
         console.print('[green]COUNTS OF FILE TYPES:[/]')
         for type in sorted_files.keys():
             type_count =  len(sorted_files[type])
-            print(f'{type.upper()}: {type_count}')
+            print(f'{type.name}: {type_count}')
 
     def select_file_types_input() -> str:
         """Ask for selection of type types to sort out, return user answer."""
         ConsoleWriter._spacer()
-        return input('JAKÝ TYP SOUBOR SE MÁ VYTŘÍDIT? (text, docx, doc, pptx, pdf, spreadsheet, image, html)\n')
+        file_types_str = ", ".join(file_type.name.lower() for (file_type) in list(FileType)[1:])
+        return input(f'JAKÝ TYP SOUBOR SE MÁ VYTŘÍDIT? ({file_types_str})\n')
 
     def get_hash_counting_info() -> dict:
         ConsoleWriter._spacer()
@@ -41,15 +45,15 @@ class ConsoleWriter():
             'end' : lambda: console.print('[yellow]All hashes counted![yellow]'),
         }
 
-    def file_similarity_score(score : float, path1 : Path, path2 : Path, long_path : bool = False) -> None:
+    def file_similarity_score(score : float, file_info1 : FileInfo, file_info2 : FileInfo, long_path : bool = False) -> None:
         """Print info about similarity between two files."""
-        path1 = ConsoleWriter._get_path_type(path1, long_path)
-        path2 = ConsoleWriter._get_path_type(path2, long_path)
+        path1 = ConsoleWriter._get_path_type(file_info1, long_path)
+        path2 = ConsoleWriter._get_path_type(file_info2, long_path)
         ConsoleWriter._spacer()
         console.print(f'There is similarity [blue]{round(score * 100, 2)} %[/] between {path1} and {path2} files.')
 
-    def do_you_want_to_remove_file(path : Path, long_path : bool = False) -> bool:
-        path = ConsoleWriter._get_path_type(path, long_path)
+    def do_you_want_to_remove_file(file_info : FileInfo, long_path : bool = False) -> bool:
+        path = ConsoleWriter._get_path_type(file_info, long_path)
         ConsoleWriter._spacer()
         if input(f'Do you want to delete the file {path}? (Y/n)\n') != 'Y':
             console.print(f'File {path} was [yellow]saved[/].')
@@ -60,11 +64,11 @@ class ConsoleWriter():
         """if one of processed files is open, print alert and stop process for a while."""
         input('One of the files is still open. Close it and press enter for continue.')
 
-    def _get_path_type(path : Path, long_path : bool) -> Path:
+    def _get_path_type(file_info : FileInfo, long_path : bool) -> Path:
         """Return selected type of path print."""
         if long_path:
-            return path
-        return path.name
+            return file_info.get_path()
+        return file_info.get_name()
 
     def detect_same_name_files() -> str:
         """Deteciting files with idetical name is in prograss information."""
@@ -75,10 +79,10 @@ class ConsoleWriter():
         add info about files count."""
         print(f'{pair_count} pairs of files with same name was detected.')
 
-    def duplicity_file_name_detected(path1 : Path, path2 : Path) -> None:
+    def duplicity_file_name_detected(file_info1 : FileInfo, file_info2 : FileInfo) -> None:
         """Inform about file name duplicity."""
         ConsoleWriter._spacer()
-        print(f'Duplicate file name {path1.name} was detected in folders\n{path1.parent}\n{path2.parent}.')
+        print(f'Duplicate file name {file_info1.get_name()} was detected in folders\n{file_info1.get_folder()}\n{file_info2.get_folder()}.')
 
     def ask_remove_duplicity_name_files() -> str:
         """Ask user if he want to remove or keep one of the duplicity name files."""

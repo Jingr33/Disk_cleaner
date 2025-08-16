@@ -1,36 +1,22 @@
-from pathlib import Path
-
-from config import FILE_TYPES
+from file_data.file_info import FileInfo
+from file_data.file_type_enum import FileType
 
 class Sorter():
-    def __init__(self, unsorted_files : list[Path]):
-        self.unsorted_files = unsorted_files
-        self.sorted_files = {}
+    def __init__(self, unsorted_files : list[FileInfo]):
+        self.unsorted_file_infos = unsorted_files
+        self.sorted_file_infos = {}
 
-    def sort_by_extension(self) -> dict:
+    def sort_by_file_type(self) -> dict:
         """Sort files into groups by file type."""
-        self.sorted_files = {}
-        for type in FILE_TYPES:
-            self.sorted_files[type] = []
+        self.sorted_file_infos = {file_type: [] for file_type in FileType}
+        for file_info in self.unsorted_file_infos:
+            self.sorted_file_infos[file_info.get_type()].append(file_info)            
+        return self.sorted_file_infos
 
-        for file_path in self.unsorted_files:
-            file_extension = file_path.suffix
-            if file_extension in ['.txt', '.md']:
-                self.sorted_files['text'].append(file_path)
-            elif file_extension == '.docx':
-                self.sorted_files['docx'].append(file_path)
-            elif file_extension in ['.doc', '.docm']:
-                self.sorted_files['doc'].append(file_path)
-            elif file_extension == '.pdf':
-                self.sorted_files['pdf'].append(file_path)
-            elif file_extension in ['.ppt', '.pptx']:
-                self.sorted_files['pptx'].append(file_path)
-            elif file_extension in ['.csv', '.xlsx', '.xls']:
-                self.sorted_files["spreadsheet"].append(file_path)
-            elif file_extension.lower() in ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.heic']:
-                self.sorted_files['image'].append(file_path)
-            elif file_extension == '.htm':
-                self.sorted_files['htm'].append(file_path)
-            else:
-                self.sorted_files['other'].append(file_path)
-        return self.sorted_files
+    def sort_by_hash(self, file_infos_type : list[FileType]) -> list[FileType]:
+        """Sort hashes of file_info
+        s of one file type list, if it is possible."""
+        return sorted(
+            (file for file in file_infos_type if file.get_hash() >= 0),
+            key=lambda file_info: file_info.get_hash()
+        )

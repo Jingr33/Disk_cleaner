@@ -13,47 +13,43 @@ from zipfile import is_zipfile
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from tqdm import tqdm
 
+from file_data.file_info import FileInfo
+from file_data.file_type_enum import FileType
+from sorter import Sorter
 from logger import Logger
 from console_writer import ConsoleWriter
 from decorators import suppress_stderr
 
 class Hasher():
-    def __init__(self, logger : Logger):
-        self.logger = logger
+    def __init__(self, sorter : Sorter, _logger : Logger):
+        self._sorter = sorter
+        self.logger = _logger
 
-    def count_hashes(self, sorted_files : dict) -> dict:
+    def count_hashes(self, sorted_files : dict) -> None:
         """Count percentual hash of all files in inpued dict, 
-        return dict with added hash to each file"""
-        hashed_files = {file_type: [] for file_type in sorted_files}
-        
+        set hash in each FileData object."""        
         hash_functions = {
-            "text" : self.extract_text_file,
-            "docx" : self.extract_docx_file,
-            "doc" : self.extract_doc_file,
-            "pdf" : self.extract_pdf_file,
-            "spreadsheet" : self.extract_spreadsheet_file,
-            "pptx" : self.extract_ppt_file,
-            "htm" : self.extract_simhash_from_htm,
-            "image" : self.get_image_phash,
+            FileType.TEXT : self.extract_text_file,
+            FileType.DOCX : self.extract_docx_file,
+            FileType.DOC : self.extract_doc_file,
+            FileType.PDF : self.extract_pdf_file,
+            FileType.SPREADSHEET : self.extract_spreadsheet_file,
+            FileType.PRESENTATION : self.extract_ppt_file,
+            FileType.HTML : self.extract_simhash_from_htm,
+            FileType.IMAGE : self.get_image_phash,
+            FileType.OTHER : self.manage_other_hash,
         }
 
         hashing_info = ConsoleWriter.get_hash_counting_info()
 
         hashing_info['start']()
-        for file_type, files in sorted_files.items():
-            for file_path in tqdm(files, desc=hashing_info['hashing'](file_type), unit="file"):
-                file_hash = hash_functions[file_type](file_path)
-                hashed_files[file_type].append((file_path, file_hash))
-            hashed_files[file_type] = Hasher._sort_files_with_hashes_or_default(hashed_files[file_type])
+        for file_type, one_type_files in sorted_files.items():
+            for file_info in tqdm(one_type_files, desc=hashing_info['hashing'](file_type.name), unit="file"):
+                file_info.set_hash(hash_functions[file_type](file_info.get_path()))
+            one_type_files = self._sorter.sort_by_hash(one_type_files)
 
         hashing_info['end']()
-        return hashed_files
-
-    def _sort_files_with_hashes_or_default(hashed_files : list[tuple]) -> list[tuple]:
-        """Sort hashes of file, if it is possible."""
-        if hashed_files[0][1] is not int:
-            return hashed_files
-        return sorted(hashed_files, key=lambda x: x[1])
+        return sorted_files
 
     def _get_simhash_from_text(text : str) -> int:
         """Count simhash from text."""
@@ -168,7 +164,7 @@ class Hasher():
             self.logger.add_to_corrupted(path)
         return Hasher._get_simhash_from_text(soup)
 
-    def get_image_phash(self, path: Path):
+    def get_image_phash(self, path: Path) -> int:
         """count percentual hash of image."""
         try:
             hash = imagehash.average_hash(Image.open(path))
@@ -177,9 +173,15 @@ class Hasher():
             self.logger.add_to_corrupted(path)
             return None
 
-    def _sequence_match_similarity(hash1: str, hash2: str) -> float:
+    def manage_other_hash(self, path : Path) -> None:
+        """Manage hash computing for FileType.OTHER files."""
+        return None
+
+    def _sequence_matcher(hash1: str, hash2: str) -> float:
         """Count percentual similarity of two files."""
-        return SequenceMatcher(None, hash1, hash2).ratio()
+        if hash1 == hash2:
+            return 1
+        return 0
 
     def _hamming_similarity_simhash(simhash1 : int, simhash2 : int) -> float:
         """Return percentage similarity of two simhashes."""
@@ -202,4 +204,4 @@ class Hasher():
         elif file_type == 'image':
             return Hasher._hamming_distance_images(hash1, hash2)
         else:
-            return Hasher._sequence_match_similarity(hash1, hash2)
+            return Hasher._sequence_matcher(str(hash1), str(hash2))

@@ -12,12 +12,12 @@ from console_writer import ConsoleWriter
 from config import *
 
 class Cleaner():
-    def __init__(self, args):
+    def __init__(self, args) -> None:
         self.root = self._set_disk_root(args.root)
         self.total_files = 0
         self.all_file_info = self._explore_disk(ROOT_FOLDER, [], True)
         self.sorted_file_infos = {}
-        self._init_dependencies(args.minsim, args.autosim)
+        self._init_dependencies()
         self._prepare_for_cleaning()
         self._remove_wave_starters(args.wavers)
         self._clean_with_hash_comparer(args.clean)
@@ -32,8 +32,8 @@ class Cleaner():
             sys.exit()
         return root
 
-    def _init_dependencies(self, minsim : argparse.Namespace, autosim : argparse.Namespace) -> None:
-        self._remover = Remover(self.all_file_info, minsim, autosim)
+    def _init_dependencies(self) -> None:
+        self._remover = Remover(self.all_file_info)
         self._sorter = Sorter(self.all_file_info)
         self._logger = Logger()
         self._hasher = Hasher(self._sorter, self._logger)

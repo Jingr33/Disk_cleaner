@@ -9,20 +9,18 @@ from console_writer import ConsoleWriter
 from config import AUTO_REMOVE_SIMILARITY, MIN_SIMILARITY
 
 class Remover():
-    def __init__(self, file_infos : list[FileInfo], 
-               arg_minsim : argparse.Namespace, 
-               arg_autosim : argparse.Namespace):
+    def __init__(self, file_infos : list[FileInfo]):
         self.file_infos = file_infos
-        self._set_similarities_thresholds(arg_minsim, arg_autosim)
+        self._set_similarities_thresholds()
 
 
-    def _set_similarities_thresholds(self, minsim : argparse.Namespace, autosim : argparse.Namespace) -> None:
-        self.minimal_similarity = MIN_SIMILARITY
-        self.auto_remove_similarity = AUTO_REMOVE_SIMILARITY
-        if minsim:
-            self.minimal_similarity = minsim
-        if autosim:
-            self.auto_remove_similarity = autosim
+    def _set_similarities_thresholds(self) -> None:
+        """Check if minimal and auto_remove similarity thresholds are setted.
+        Otherwise set default values."""
+        if not MIN_SIMILARITY:
+            self.minimal_similarity = 0.8
+        if not AUTO_REMOVE_SIMILARITY:
+            self.auto_remove_similarity = 1.0
         
     def delete_wavers(self) -> list[FileInfo]:
         """Remove all files with tilda beginning names."""

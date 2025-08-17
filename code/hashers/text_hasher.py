@@ -1,14 +1,16 @@
 from pathlib import Path
 from simhash import Simhash
 
+from file_data.file_info import FileInfo
 from hashers.hasher_base import HasherBase
 
 class TextHasher(HasherBase):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, path: Path) -> int:
+    def extract_hash(self, file_info : FileInfo) -> int:
         """Extract text file, return simhash of a file."""
+        path = file_info.get_path()
         text = None
         with open(path, "r", encoding="utf-8", errors="ignore") as f:
             text = f.read()

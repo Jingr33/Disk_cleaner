@@ -1,5 +1,4 @@
 from pathlib import Path
-import argparse
 from tqdm import tqdm
 
 from hashers.hasher import Hasher
@@ -42,20 +41,20 @@ class Remover():
         for i in range(len(file_infos) - 1, -1, -1):
             self._compare_two_files(file_infos, i, file_type)
 
-    def _compare_two_files(self, file_infos : list[FileInfo], f1_idx : int, file_type : FileType) -> None:
+    def _compare_two_files(self, file_infos : list[FileInfo], fi1_idx : int, file_type : FileType) -> None:
         """Compare file similarity with all remaining files.
         Remove one of files or not depending on hash simiarity."""
-        fi1 = file_infos[f1_idx - 1]
-        fi2 = file_infos[f1_idx]
-        sim_score = Hasher.similarity_score(fi2.get_hash(), fi1.get_hash(), file_type)
+        file_info1 = file_infos[fi1_idx - 1]
+        file_info2 = file_infos[fi1_idx]
+        sim_score = Hasher.similarity_score(file_info2.get_hash(), file_info1.get_hash(), file_type)
 
         if sim_score < self.minimal_similarity:
             return
 
-        if sim_score >= self.auto_remove_similarity:
-            file_infos = self._remove_file_automaticly(file_infos, f1_idx)
+        if sim_score >= self.auto_remove_similarity and file_info1.is_auto_removable():
+            file_infos = self._remove_file_automaticly(file_infos, fi1_idx)
         else:
-            file_infos = self._ask_for_remove(file_infos, sim_score, f1_idx - 1, f1_idx)
+            file_infos = self._ask_for_remove(file_infos, sim_score, fi1_idx - 1, fi1_idx)
 
     def _remove_file_automaticly(self, file_infos : list[FileInfo], removing_idx : int) -> list[tuple]:
         """Remove file from the disk and from file_infos list automaticly."""

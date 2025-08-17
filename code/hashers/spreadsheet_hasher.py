@@ -1,14 +1,15 @@
-from pathlib import Path
 import pandas as pd
 
+from file_data.file_info import FileInfo
 from hashers.text_hasher import TextHasher
 
 class SpreadsheetHasher(TextHasher):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, path: Path) -> str:
+    def extract_hash(self, file_info : FileInfo) -> str:
         """Extract spreadsheet file, return content as a string."""
+        path = file_info.get_path()
         try:
             df = None
             if path.suffix.lower() == ".csv":

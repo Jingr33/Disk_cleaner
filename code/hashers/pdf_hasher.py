@@ -3,6 +3,7 @@ import fitz
 import io
 from PIL import Image
 
+from file_data.file_info import FileInfo
 from hashers.text_hasher import TextHasher
 from hashers.image_hasher import ImageHasher
 from console_writer import ConsoleWriter
@@ -12,16 +13,17 @@ class PdfHasher(TextHasher, ImageHasher):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, path: Path) -> int:
+    def extract_hash(self, file_info : FileInfo) -> int:
         """Extract percentual simhash from pdf file. 
         From text, if it is possible, if not, count image pahsh."""
+        path = file_info.get_path()
         with suppress_stderr():
             try:
                 text = self.extract_text_fom_pdf(path)
                 simhash = self.extract_hash_from_text(text)
                 if simhash:
                     return simhash
-                return self.extract_hash_from_pdf_as_image(path)
+                return self.extract_hash_from_pdf_as_image(path, file_info)
             except Exception as e:
                 ConsoleWriter.faild_to_read_pdf(path, e)
                 return None
@@ -36,12 +38,13 @@ class PdfHasher(TextHasher, ImageHasher):
                     text += extracted + "\n"
         return text
 
-    def extract_hash_from_pdf_as_image(self, path : Path) -> int:
+    def extract_hash_from_pdf_as_image(self, path : Path, file_info : FileInfo) -> int:
         """Count phash from pdf file as from image. """
         combined_hash = 0
         with fitz.open(path) as pdf:
             for i, page in enumerate(pdf):
                 if i >= 10:
+                    file_info.set_auto_removability(False)
                     break        
                 pix = page.get_pixmap(dpi=150)
                 img = Image.open(io.BytesIO(pix.tobytes()))

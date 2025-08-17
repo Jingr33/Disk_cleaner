@@ -1,15 +1,16 @@
-from pathlib import Path
 from PIL import Image, ImageFile
 import imagehash
 
+from file_data.file_info import FileInfo
 from hashers.hasher_base import HasherBase
 
 class ImageHasher(HasherBase):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, path: Path) -> int:
+    def extract_hash(self, file_info: FileInfo) -> int:
         """Count percentual hash of an image."""
+        path = file_info.get_path()
         try:
             img = Image.open(path)
             return self.get_phash_value(img)

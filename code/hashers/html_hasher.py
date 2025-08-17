@@ -1,14 +1,15 @@
-from pathlib import Path
 from bs4 import BeautifulSoup
 
+from file_data.file_info import FileInfo
 from hashers.text_hasher import TextHasher
 
 class HtmlHasher(TextHasher):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, path: Path) -> int:
+    def extract_hash(self, file_info : FileInfo) -> int:
         """Extract html code, count and return simhash of a file."""
+        path = file_info.get_path()
         html_contetnt = ''
         try:
             soup = None

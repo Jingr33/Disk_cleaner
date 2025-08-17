@@ -1,14 +1,15 @@
-from pathlib import Path
 import pptx
 
+from file_data.file_info import FileInfo
 from hashers.hasher_base import HasherBase
 
 class PresentationHasher(HasherBase):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, path: Path) -> str:
+    def extract_hash(self, file_info : FileInfo) -> str:
         """Extract ppt file (presentation), return content as a string."""
+        path = file_info.get_path()
         try:
             prs = pptx.Presentation(path)
             text_runs = []

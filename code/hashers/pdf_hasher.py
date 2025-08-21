@@ -8,6 +8,7 @@ from hashers.text_hasher import TextHasher
 from hashers.image_hasher import ImageHasher
 from console_writer import ConsoleWriter
 from decorators import suppress_stderr
+from config import PDF_IMAGE_MAX_PAGES
 
 class PdfHasher(TextHasher, ImageHasher):
     def __init__(self, sorter, logger):
@@ -43,7 +44,7 @@ class PdfHasher(TextHasher, ImageHasher):
         combined_hash = 0
         with fitz.open(path) as pdf:
             for i, page in enumerate(pdf):
-                if i >= 10:
+                if i >= PDF_IMAGE_MAX_PAGES:
                     file_info.set_auto_removability(False)
                     break        
                 pix = page.get_pixmap(dpi=150)

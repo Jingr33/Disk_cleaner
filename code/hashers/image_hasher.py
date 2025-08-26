@@ -10,12 +10,11 @@ class ImageHasher(HasherBase):
 
     def extract_hash(self, file_info: FileInfo) -> int:
         """Count percentual hash of an image."""
-        path = file_info.get_path()
         try:
-            img = Image.open(path)
+            img = Image.open(file_info.get_path())
             return self.get_phash_value(img)
         except Exception as e:
-            self.logger.add_to_corrupted(path)
+            self.logger.add_to_corrupted(file_info, e)
             return None
 
     def get_phash_value(self, img : ImageFile) -> int:

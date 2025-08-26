@@ -9,6 +9,7 @@ class FileInfo():
         self._type = None
         self._hash = None
         self.auto_removable = True
+        self._error = None
         self.set_type()
 
     def set_type(self) -> None:
@@ -37,8 +38,12 @@ class FileInfo():
         self._hash = hash
 
     def set_auto_removability(self, is_auto_removable : bool) -> None:
-        """Set autzo_removable property."""
+        """Set auto_removable property."""
         self.auto_removable = is_auto_removable
+
+    def set_error(self, error : str) -> None:
+        """Set error of the file."""
+        self._error = error
 
     def get_path(self) -> Path:
         """Return path of the file."""
@@ -66,6 +71,10 @@ class FileInfo():
     def get_folder(self) -> Path:
         """Return a folder of the file."""
         return self._path.parent
+
+    def get_error_or_default(self) -> str:
+        """Return error of the file or default."""
+        return self._error
 
     def is_auto_removable(self) -> bool:
         """Return, if file is automatically removable."""

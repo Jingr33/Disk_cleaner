@@ -9,8 +9,8 @@ class SpreadsheetHasher(TextHasher):
 
     def extract_hash(self, file_info : FileInfo) -> str:
         """Extract spreadsheet file, return content as a string."""
-        path = file_info.get_path()
         try:
+            path = file_info.get_path()
             df = None
             if path.suffix.lower() == ".csv":
                 df = pd.read_csv(path)
@@ -18,6 +18,6 @@ class SpreadsheetHasher(TextHasher):
                 df = pd.read_excel(path, engine='openpyxl')
             df_text = df.to_csv(index=False)
             return self.extract_hash_from_text(df_text)
-        except:
-            self.logger.add_to_corrupted(path)
+        except Exception as e:
+            self.logger.add_to_corrupted(file_info, e)
             return None

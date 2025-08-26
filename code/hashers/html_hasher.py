@@ -9,13 +9,12 @@ class HtmlHasher(TextHasher):
 
     def extract_hash(self, file_info : FileInfo) -> int:
         """Extract html code, count and return simhash of a file."""
-        path = file_info.get_path()
         html_contetnt = ''
         try:
             soup = None
-            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_info.get_path(), "r", encoding="utf-8", errors="ignore") as f:
                 soup = BeautifulSoup(f, "html.parser")
             html_contetnt = soup.get_text()
         except Exception as e:
-            self.logger.add_to_corrupted(path)
+            self.logger.add_to_corrupted(file_info, e)
         return self.extract_hash_from_text(html_contetnt)

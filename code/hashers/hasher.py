@@ -40,6 +40,7 @@ class Hasher():
             one_type_files = self._sorter.sort_by_hash(one_type_files)
 
         hashing_info['end']()
+        self._logger.log_corrupted_files()
         return sorted_files
         
     def _sequence_matcher(hash1: str, hash2: str) -> float:

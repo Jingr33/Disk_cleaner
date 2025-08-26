@@ -10,16 +10,6 @@ from config import AUTO_REMOVE_SIMILARITY, MIN_SIMILARITY
 class Remover():
     def __init__(self, file_infos : list[FileInfo]):
         self.file_infos = file_infos
-        self._set_similarities_thresholds()
-
-
-    def _set_similarities_thresholds(self) -> None:
-        """Check if minimal and auto_remove similarity thresholds are setted.
-        Otherwise set default values."""
-        if not MIN_SIMILARITY:
-            self.minimal_similarity = 0.8
-        if not AUTO_REMOVE_SIMILARITY:
-            self.auto_remove_similarity = 1.0
         
     def delete_wavers(self) -> list[FileInfo]:
         """Remove all files with tilda beginning names."""
@@ -48,10 +38,10 @@ class Remover():
         file_info2 = file_infos[fi1_idx]
         sim_score = Hasher.similarity_score(file_info2.get_hash(), file_info1.get_hash(), file_type)
 
-        if sim_score < self.minimal_similarity:
+        if sim_score < MIN_SIMILARITY:
             return
 
-        if sim_score >= self.auto_remove_similarity and file_info1.is_auto_removable():
+        if sim_score >= AUTO_REMOVE_SIMILARITY and file_info1.is_auto_removable():
             file_infos = self._remove_file_automaticly(file_infos, fi1_idx)
         else:
             file_infos = self._ask_for_remove(file_infos, sim_score, fi1_idx - 1, fi1_idx)

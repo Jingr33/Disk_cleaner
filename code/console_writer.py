@@ -35,7 +35,7 @@ class ConsoleWriter():
         """Ask for selection of type types to sort out, return user answer."""
         ConsoleWriter._spacer()
         file_types_str = ", ".join(file_type.name.lower() for (file_type) in list(FileType)[1:])
-        return input(f'JAKÝ TYP SOUBOR SE MÁ VYTŘÍDIT? ({file_types_str})\n')
+        return input(f'SELECT FILE TYPES TO DELETE? ({file_types_str})\n')
 
     def get_hash_counting_info() -> dict:
         ConsoleWriter._spacer()

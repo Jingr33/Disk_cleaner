@@ -18,7 +18,7 @@ class DocxHasher(DocHasher):
                 doc = docx.Document(path)
                 text =  "\n".join([para.text for para in doc.paragraphs])
         except Exception as e:
-            self.logger.add_to_corrupted(path)
+            self.logger.add_to_corrupted(file_info, e)
         return self.extract_hash_from_text(text)
         
     def is_probably_valid_docx(path: Path) -> bool:

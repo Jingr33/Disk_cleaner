@@ -25,7 +25,7 @@ class Cleaner():
     def _set_disk_root(self, root_arg : argparse.Namespace) -> str:
         """Set root folder of the disk depends on args."""
         root = ROOT_FOLDER
-        if root_arg != "":
+        if root_arg != '':
             root = root_arg
         if not Path(root).exists() or not Path(root).is_dir():
             ConsoleWriter.root_folder_not_found(root)
@@ -49,9 +49,7 @@ class Cleaner():
                 files.append(FileInfo(item_path))
                 self.total_files += 1
             else:
-                # print corrupted file
-                # TODO
-                ...
+                self._logger.add_to_corrupted(FileInfo(item_path), 'Failed to explore this file')
             ConsoleWriter.explore_files_progress(self.total_files)
         if print_result:
             ConsoleWriter.explore_files_progress(self.total_files, False)

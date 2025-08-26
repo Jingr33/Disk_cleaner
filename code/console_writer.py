@@ -12,9 +12,9 @@ class ConsoleWriter():
 
     def _spacer(lines : int = 1) -> None:
         """Print specified number of free lines."""
-        space = ""
+        space = ''
         for i in range(lines):
-            space += "\n"
+            space += '\n'
         return print(space)
 
     def file_deleted(file_info : FileInfo, long_path : bool = False):
@@ -34,7 +34,7 @@ class ConsoleWriter():
     def select_file_types_input() -> str:
         """Ask for selection of type types to sort out, return user answer."""
         ConsoleWriter._spacer()
-        file_types_str = ", ".join(file_type.name.lower() for (file_type) in list(FileType)[1:])
+        file_types_str = ', '.join(file_type.name.lower() for (file_type) in list(FileType)[1:])
         return input(f'SELECT FILE TYPES TO DELETE? ({file_types_str})\n')
 
     def get_hash_counting_info() -> dict:
@@ -86,12 +86,12 @@ class ConsoleWriter():
 
     def ask_remove_duplicity_name_files() -> str:
         """Ask user if he want to remove or keep one of the duplicity name files."""
-        return input("Do you want to remove second file ?\n(Y - remove, n - keep file, All - remove all duplicities)")
+        return input('Do you want to remove second file ?\n(Y - remove, n - keep file, All - remove all duplicities)')
     
     def duplicity_names_removing_completed() -> None:
         """Inform that removing of duplicity name files is completed."""
         ConsoleWriter._spacer()
-        print("Removing of idetic named files is completed.")
+        print('Removing of idetic named files is completed.')
 
     def explore_files_progress(found_files_count : int, erase : bool = True) -> None:
         """Add progress info into console during disk exploration."""
@@ -104,25 +104,25 @@ class ConsoleWriter():
 
     def init_live_spinner():
         """"Initialize live spinner."""
-        return console.status("[bold green]Porovnávám soubory...[/]", spinner="dots")
+        return console.status('[bold green]Porovnávám soubory...[/]', spinner='dots')
 
     def update_live_spinner(live : Live, erase : bool = False):
-        """Uopdate live spinner content."""
+        """Update live spinner content."""
         if erase:
             return live.update('')
         return ConsoleWriter._live_spinnner_content(live)
 
     def _live_spinnner_content():
         """Return live spinner with content."""
-        return Spinner("dots", text="Comparing files...")
+        return Spinner('dots', text='Comparing files...')
 
     def root_folder_not_found(path : str) -> None:
         """Print root folder was not found info."""
         console.print(f"This root  {path} [red]folder doesn't exists[/] in your disk.")
 
     def faild_to_read_pdf(path : Path, error : Exception) -> None:
-        console.print(f"Failed to read {path}: {error}")
+        console.print(f'Failed to read {path}: {error}')
 
     def print(content : str) -> None:
-        """Print into console via rich."""
+        """Print into console via rich library."""
         console.print(content)

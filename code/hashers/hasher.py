@@ -35,7 +35,7 @@ class Hasher():
 
         hashing_info['start']()
         for file_type, one_type_files in sorted_files.items():
-            for file_info in tqdm(one_type_files, desc=hashing_info['hashing'](file_type.name), unit="file"):
+            for file_info in tqdm(one_type_files, desc=hashing_info['hashing'](file_type.name), unit='file'):
                 file_info.set_hash(hashers[file_type].extract_hash(file_info))
             one_type_files = self._sorter.sort_by_hash(one_type_files)
 

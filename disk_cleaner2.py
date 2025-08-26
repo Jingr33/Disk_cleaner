@@ -14,9 +14,6 @@ from bs4 import BeautifulSoup
 from zipfile import is_zipfile
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
-# development
-from icecream import ic
-
 ROOT_FOLDER = r"D:\fyzio_disk\unzip"
 MIN_SIMILARITY = 0.8 # above this similarity, files will be evaluated as similar
 AUTO_REMOVE_SIMILARITY = 1.0 # above this simililarity, the second file will be remove automaticly

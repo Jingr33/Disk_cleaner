@@ -12,7 +12,7 @@ class SpreadsheetHasher(TextHasher):
         try:
             path = file_info.get_path()
             df = None
-            if path.suffix.lower() == ".csv":
+            if path.suffix.lower() == '.csv':
                 df = pd.read_csv(path)
             else:
                 df = pd.read_excel(path, engine='openpyxl')

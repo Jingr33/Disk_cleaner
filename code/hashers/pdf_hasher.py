@@ -31,12 +31,12 @@ class PdfHasher(TextHasher, ImageHasher):
 
     def extract_text_fom_pdf(self, path : Path) -> int:
         """Extract text from PDF file."""
-        text = ""
+        text = ''
         with fitz.open(path) as pdf:
             for page in pdf:
                 extracted = page.get_text()
                 if extracted:
-                    text += extracted + "\n"
+                    text += extracted + '\n'
         return text
 
     def extract_hash_from_pdf_as_image(self, path : Path, file_info : FileInfo) -> int:

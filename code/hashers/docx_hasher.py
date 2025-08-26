@@ -16,11 +16,11 @@ class DocxHasher(DocHasher):
         try:
             if DocxHasher.is_probably_valid_docx(path):
                 doc = docx.Document(path)
-                text =  "\n".join([para.text for para in doc.paragraphs])
+                text =  '\n'.join([para.text for para in doc.paragraphs])
         except Exception as e:
             self.logger.add_to_corrupted(file_info, e)
         return self.extract_hash_from_text(text)
         
     def is_probably_valid_docx(path: Path) -> bool:
         """Check, if file is valid docx."""
-        return path.suffix.lower() == ".docx" and is_zipfile(path)
+        return path.suffix.lower() == '.docx' and is_zipfile(path)

@@ -71,7 +71,7 @@ class Remover():
     def _is_file_locked(path: Path) -> bool:
         """Check, if file is actualy open."""
         try:
-            with open(path, "a"):
+            with open(path, 'a'):
                 return False
         except IOError:
             return True
@@ -88,7 +88,7 @@ class Remover():
         total_pairs = sum(
             len(file_info) * (len(file_info) - 1) // 2 for file_info in sorted_file_infos.values() if len(file_info) > 1
         )
-        with tqdm(total=total_pairs, desc=ConsoleWriter.detect_same_name_files(), unit="pair") as pbar:
+        with tqdm(total=total_pairs, desc=ConsoleWriter.detect_same_name_files(), unit='pair') as pbar:
             for _, file_infos in sorted_file_infos.items():
                 if len(file_infos) <= 1:
                     continue

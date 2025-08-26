@@ -12,7 +12,7 @@ class TextHasher(HasherBase):
         """Extract text file, return simhash of a file."""
         path = file_info.get_path()
         text = None
-        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             text = f.read()
         return self.extract_hash_from_text(text)
 

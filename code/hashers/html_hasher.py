@@ -12,8 +12,8 @@ class HtmlHasher(TextHasher):
         html_contetnt = ''
         try:
             soup = None
-            with open(file_info.get_path(), "r", encoding="utf-8", errors="ignore") as f:
-                soup = BeautifulSoup(f, "html.parser")
+            with open(file_info.get_path(), 'r', encoding='utf-8', errors='ignore') as f:
+                soup = BeautifulSoup(f, 'html.parser')
             html_contetnt = soup.get_text()
         except Exception as e:
             self.logger.add_to_corrupted(file_info, e)

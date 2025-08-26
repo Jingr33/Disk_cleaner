@@ -21,16 +21,16 @@ class Logger():
         rows = []
         for file_info in self.corrupted_files:
             rows.append({
-                "File" : str(file_info.get_path()),
-                "Error" : file_info.get_error_or_default(),
+                'File' : str(file_info.get_path()),
+                'Error' : file_info.get_error_or_default(),
             })
         df = pd.DataFrame(rows)
 
         log_file_exists = os.path.exists(self.log_file_name)
         df.to_csv(
             self.log_file_name,
-            mode="a" if log_file_exists else "w",
+            mode='a' if log_file_exists else 'w',
             header=False,
             index=False,
-            encoding="utf-8"
+            encoding='utf-8'
         )

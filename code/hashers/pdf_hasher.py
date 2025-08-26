@@ -1,5 +1,6 @@
 from pathlib import Path
 import fitz
+fitz.TOOLS.mupdf_display_errors(False)
 import io
 from PIL import Image
 
@@ -26,7 +27,7 @@ class PdfHasher(TextHasher, ImageHasher):
                     return simhash
                 return self.extract_hash_from_pdf_as_image(path, file_info)
             except Exception as e:
-                ConsoleWriter.faild_to_read_pdf(path, e)
+                self.logger.add_to_corrupted(file_info, e)
                 return None
 
     def extract_text_fom_pdf(self, path : Path) -> int:

@@ -1,10 +1,12 @@
 from tqdm import tqdm
 
 from file_data.file_info import FileInfo
+from backuper import Backuper
 from console_writer import ConsoleWriter
 
 class DuplicityNamesRemover():
-    def __init__(self, sorted_file_infos : dict) -> None:
+    def __init__(self, sorted_file_infos : dict, backuper : Backuper) -> None:
+        self._backuper = backuper
         self._all_duplicities = {}
         self._find_same_names_files(sorted_file_infos)
         self._remove_duplicate_name_files()
@@ -46,6 +48,6 @@ class DuplicityNamesRemover():
     def _remove_duplicate_name_file(self, duplicities : list[FileInfo]) -> list[FileInfo]:
         while len(duplicities) >= 2:
             file_info = duplicities.pop(-1)
-            file_info.get_path().unlink()
+            self._backuper.move_to_bin(file_info)
             ConsoleWriter.file_deleted(file_info, True)
         return duplicities

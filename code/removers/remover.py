@@ -27,4 +27,4 @@ class Remover():
                 self._by_image_remover.hash_based_pruning_of_type(sorted_file_infos[file_type])
 
     def delete_duplicity_name_files(self, sorted_file_infos : dict) -> None:
-        DuplicityNamesRemover(sorted_file_infos)
+        DuplicityNamesRemover(sorted_file_infos, self._backuper)

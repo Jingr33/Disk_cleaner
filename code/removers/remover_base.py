@@ -2,12 +2,14 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 
 from file_data.file_info import FileInfo
+from backuper import Backuper
 from console_writer import ConsoleWriter
 from config import AUTO_REMOVE_SIMILARITY
 
 class RemoverBase(ABC):
-    def __init__(self, file_infos : list[FileInfo]):
+    def __init__(self, file_infos : list[FileInfo], backuper : Backuper):
         self.file_infos = file_infos
+        self._backuper = backuper
         
     def delete_wavers(self) -> list[FileInfo]:
         """Remove all files with tilda beginning names."""
@@ -40,7 +42,7 @@ class RemoverBase(ABC):
     def _remove_file_automaticly(self, file_infos : list[FileInfo], removing_idx : int) -> list[tuple]:
         """Remove file from the disk and from file_infos list automaticly."""
         file_info = file_infos.pop(removing_idx)
-        file_info.get_path().unlink()
+        self._backuper.move_to_bin(file_info)
         ConsoleWriter.file_deleted(file_info)
         return file_infos
 

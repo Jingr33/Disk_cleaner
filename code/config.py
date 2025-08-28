@@ -6,3 +6,5 @@ AUTO_REMOVE_SIMILARITY = 1.0 # above this simililarity, the second file will be 
 
 CORRUPTED_FILES_LOG = 'corrupted_files.csv'
 PDF_IMAGE_MAX_PAGES = 10
+
+BIN_FOLDER_NAME = "disk_bin"

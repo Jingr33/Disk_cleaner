@@ -1,12 +1,13 @@
 from removers.remover_base import RemoverBase
 from hashers.hasher import Hasher
+from backuper import Backuper
 from file_data.file_info import FileInfo
 from hashers.hash_type_enum import HashType
 from config import MIN_SIMILARITY
 
 class ByImageRemover(RemoverBase):
-    def __init__(self, file_infos : list[FileInfo]) -> None:
-        super().__init__(file_infos)
+    def __init__(self, file_infos : list[FileInfo], backuper : Backuper) -> None:
+        super().__init__(file_infos, backuper)
 
     def hash_based_pruning_of_type(self, file_infos : list[FileInfo]) -> None:
         """Compare neighbour hashes in file_infos list (by image hashes).

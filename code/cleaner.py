@@ -4,6 +4,7 @@ from pathlib import Path
 import argparse
 
 from file_data.file_info import FileInfo
+from backuper import Backuper
 from removers.remover import Remover
 from sorter import Sorter
 from logger import Logger
@@ -35,7 +36,8 @@ class Cleaner():
         return root
 
     def _init_dependencies(self) -> None:
-        self._remover = Remover(self.all_file_info)
+        self._backuper = Backuper()
+        self._remover = Remover(self.all_file_info, self._backuper)
         self._sorter = Sorter(self.all_file_info)
         self._logger = Logger()
         self._hasher = Hasher(self._sorter, self._logger)

@@ -11,6 +11,7 @@ class FileInfo():
         self._image_hash = None
         self.auto_removable = True
         self._error = None
+        self._restore_path = None
         self.set_type()
 
     def set_type(self) -> None:
@@ -34,6 +35,10 @@ class FileInfo():
         else:
             self._type = FileType.OTHER
 
+    def set_new_path(self, path : Path) -> None:
+        """Set path of the file."""
+        self._path = path
+
     def set_text_hash(self, text_hash : int) -> None:
         """Set percentual hash counted from text of the file."""
         self._text_hash = text_hash
@@ -49,6 +54,10 @@ class FileInfo():
     def set_error(self, error : str) -> None:
         """Set error of the file."""
         self._error = error
+
+    def set_restore_path(self) -> None:
+        """Set _restore_path for restore from bin."""
+        self._restore_path = self._path
 
     def get_path(self) -> Path:
         """Return path of the file."""
@@ -95,6 +104,10 @@ class FileInfo():
     def get_error_or_default(self) -> str:
         """Return error of the file or default."""
         return self._error
+
+    def get_restore_path(self) -> Path:
+        """Return restore path of the file."""
+        return self._restore_path
 
     def is_auto_removable(self) -> bool:
         """Return, if file is automatically removable."""

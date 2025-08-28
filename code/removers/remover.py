@@ -2,14 +2,16 @@ from removers.by_text_remover import ByTextRemover
 from removers.by_image_remover import ByImageRemover
 from removers.by_text_and_image_remover import ByTextAndImageRemover
 from removers.by_text_or_image_remover import ByTextOrImageRemover
+from backuper import Backuper
 from file_data.file_info import FileInfo
 
 class Remover():
-    def __init__(self, file_infos : list[FileInfo]) -> None:
-        self._by_text_remover = ByTextRemover(file_infos)
-        self._by_image_remover = ByImageRemover(file_infos)
-        self._by_text_and_image_remover = ByTextAndImageRemover(file_infos)
-        self._by_text_or_image_remover = ByTextOrImageRemover(file_infos)
+    def __init__(self, file_infos : list[FileInfo], backuper : Backuper) -> None:
+        self._backuper = backuper
+        self._by_text_remover = ByTextRemover(file_infos, backuper)
+        self._by_image_remover = ByImageRemover(file_infos, backuper)
+        self._by_text_and_image_remover = ByTextAndImageRemover(file_infos, backuper)
+        self._by_text_or_image_remover = ByTextOrImageRemover(file_infos, backuper)
 
     def hash_based_pruning(self, sorted_file_infos : dict) -> None:
         """Remove similar files (in all file types) depends on phash ratio between two files."""

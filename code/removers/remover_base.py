@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 from abc import ABC, abstractmethod
 
 from file_data.file_info import FileInfo
@@ -49,27 +50,21 @@ class RemoverBase(ABC):
     def _ask_for_remove(self, file_infos : list[FileInfo], sim_score : float, idx_fi1 : int, idx_fi2 : int) -> list:
         """Ask user for remove. Manage remove depending on user input."""
         ConsoleWriter.file_similarity_score(sim_score, file_infos[idx_fi1], file_infos[idx_fi2])
-        # os.startfile(fpath1)
-        # os.startfile(fpath2)
+        os.startfile(file_infos[idx_fi1].get_path())
+        os.startfile(file_infos[idx_fi2].get_path())
 
         if not ConsoleWriter.do_you_want_to_remove_file(file_infos[idx_fi2]):
             return file_infos
         
-        # while Remover._is_file_locked(fpath1) or Remover._is_file_locked(fpath2):
-        #     ConsoleWriter.file_still_open()
+        while self._is_file_locked(file_infos[idx_fi1]) or self._is_file_locked(file_infos[idx_fi2]):
+            ConsoleWriter.file_still_open()
 
         return self._remove_file_automaticly(file_infos, idx_fi2)
 
-    def _is_file_locked(path: Path) -> bool:
+    def _is_file_locked(self, file_info : FileInfo) -> bool:
         """Check, if file is actualy open."""
         try:
-            with open(path, 'a'):
+            with open(file_info.get_path(), 'a'):
                 return False
         except IOError:
             return True
-
-    def remove_same_name_files(self, sorted_file_infos : dict) -> dict:
-        """Manage removing of files with identical name."""
-        ConsoleWriter.detect_same_name_files()
-        duplicity_names = RemoverBase._find_same_names_files(sorted_file_infos)
-        RemoverBase._remove_duplicate_name_files(duplicity_names)

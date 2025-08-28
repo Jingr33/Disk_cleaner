@@ -7,7 +7,8 @@ class FileInfo():
         self._path = path
         self._suffix = self._path.suffix
         self._type = None
-        self._hash = None
+        self._text_hash = None
+        self._image_hash = None
         self.auto_removable = True
         self._error = None
         self.set_type()
@@ -15,7 +16,7 @@ class FileInfo():
     def set_type(self) -> None:
         """Set a type of the file."""
         if self._suffix in ['.txt', '.md']:
-            self.type = FileType.TEXT
+            self._type = FileType.TEXT
         elif self._suffix == '.docx':
             self._type = FileType.DOCX
         elif self._suffix in ['.doc', '.docm']:
@@ -28,14 +29,18 @@ class FileInfo():
             self._type = FileType.SPREADSHEET
         elif self._suffix.lower() in ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.heic']:
             self._type = FileType.IMAGE
-        elif self._suffix == '.htm':
+        elif self._suffix in ['.htm', '.html']:
             self._type = FileType.HTML
         else:
             self._type = FileType.OTHER
 
-    def set_hash(self, hash : int) -> None:
-        """Set percentual hash on the file."""
-        self._hash = hash
+    def set_text_hash(self, text_hash : int) -> None:
+        """Set percentual hash counted from text of the file."""
+        self._text_hash = text_hash
+
+    def set_image_hash(self, image_hash : int) -> None:
+        """Set percentual hash counted from images in the file."""
+        self._image_hash = image_hash
 
     def set_auto_removability(self, is_auto_removable : bool) -> None:
         """Set auto_removable property."""
@@ -62,11 +67,26 @@ class FileInfo():
         (example: '.txt')"""
         return self._path.suffix
 
-    def get_hash(self) -> int:
-        """Return a hash of the file."""
-        if self._hash:
-            return self._hash
-        return -1
+    def get_text_hash(self) -> int:
+        """Return a text hash of the file."""
+        if self._text_hash:
+            return self._text_hash
+        return None
+
+    def get_image_hash(self) -> int:
+        """Return an image hash of the file."""
+        if self._image_hash:
+            return self._image_hash
+        return None
+
+    def get_combined_hash(self) -> int:
+        """Return combined hash of the file."""
+        combined_hash = 0
+        if self._text_hash:
+            combined_hash += self._text_hash
+        if self._image_hash:
+            combined_hash += self._image_hash
+        return combined_hash
 
     def get_folder(self) -> Path:
         """Return a folder of the file."""

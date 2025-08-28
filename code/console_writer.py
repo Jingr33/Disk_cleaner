@@ -45,20 +45,23 @@ class ConsoleWriter():
             'end' : lambda: console.print('[yellow]All hashes counted![yellow]'),
         }
 
-    def file_similarity_score(score : float, file_info1 : FileInfo, file_info2 : FileInfo, long_path : bool = False) -> None:
+    def file_similarity_score(score, file_info1 : FileInfo, file_info2 : FileInfo, long_path : bool = False) -> None:
         """Print info about similarity between two files."""
         path1 = ConsoleWriter._get_path_type(file_info1, long_path)
         path2 = ConsoleWriter._get_path_type(file_info2, long_path)
         ConsoleWriter._spacer()
-        console.print(f'There is similarity [blue]{round(score * 100, 2)} %[/] between {path1} and {path2} files.')
+        if isinstance(score, float):
+            console.print(f'There is a similarity [blue]{round(score * 100, 2)} %[/] between {path1} and {path2} files.')
+        elif isinstance(score, tuple):
+            (text_score, img_score) = score
+            console.print(f'There is a text similarity [blue]{round(text_score * 100, 2)} %[/] and visual similarity [blue]{round(img_score * 100, 2)} %[/] between {path1} and {path2} files.')
 
     def do_you_want_to_remove_file(file_info : FileInfo, long_path : bool = False) -> bool:
         path = ConsoleWriter._get_path_type(file_info, long_path)
-        ConsoleWriter._spacer()
-        if input(f'Do you want to delete the file {path}? (Y/n)\n') != 'Y':
-            console.print(f'File {path} was [yellow]saved[/].')
-            return False
-        return True
+        if input(f'Do you want to delete the file {path}? (Y/n)\n') == 'Y':
+            return True
+        console.print(f'File {path} was [yellow]saved[/].')
+        return False
 
     def file_still_open() -> None:
         """if one of processed files is open, print alert and stop process for a while."""

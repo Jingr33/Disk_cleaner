@@ -8,7 +8,11 @@ class ImageHasher(HasherBase):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, file_info: FileInfo) -> int:
+    def extract_text_hash(self, file_info : FileInfo):
+        """Extract text hash from a file -> None in this case."""
+        return super().extract_text_hash(file_info)
+
+    def extract_image_hash(self, file_info: FileInfo) -> int:
         """Count percentual hash of an image."""
         try:
             img = Image.open(file_info.get_path())

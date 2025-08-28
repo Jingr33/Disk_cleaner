@@ -4,7 +4,7 @@ from pathlib import Path
 import argparse
 
 from file_data.file_info import FileInfo
-from remover import Remover
+from removers.remover import Remover
 from sorter import Sorter
 from logger import Logger
 from hashers.hasher import Hasher
@@ -17,6 +17,7 @@ class Cleaner():
         self.total_files = 0
         self.all_file_info = self._explore_disk(ROOT_FOLDER, [], True)
         self.sorted_file_infos = {}
+        self.sorted_by = {}
         self._init_dependencies()
         self._prepare_for_cleaning()
         self._remove_wave_starters(args.wavers)
@@ -61,17 +62,17 @@ class Cleaner():
         self.sorted_file_infos = self._sorter.sort_by_file_type()
         ConsoleWriter.file_counts(self.sorted_file_infos)
         self.select_entered_file_types()
-        self._hasher.count_hashes(self.sorted_file_infos)
+        self.sorted_by = self._hasher.count_hashes(self.sorted_file_infos)
     
     def _remove_wave_starters(self, wavers_arg : argparse.Namespace) -> None:
         """Remove files with names beginning with tilda."""
         if wavers_arg:
-            self.all_file_info = Remover.delete_wavers(self.all_file_info)
+            self.all_file_info = self._remover.delete_wavers(self.all_file_info)
     
     def _clean_with_hash_comparer(self, clean_arg : argparse.Namespace):
         """Clean the disk with hash comparsion method."""
         if clean_arg:
-            self._remover.hash_based_pruning(self.sorted_file_infos)
+            self._remover.hash_based_pruning(self.sorted_by)
 
     def select_entered_file_types(self) -> None:
         """Ask user for file types to pruning.

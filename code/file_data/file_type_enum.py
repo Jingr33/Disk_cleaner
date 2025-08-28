@@ -3,10 +3,10 @@ from enum import Enum
 class FileType(Enum):
     OTHER = 0
     TEXT = 1
-    PDF = 2
+    DOC = 2
     DOCX = 3
-    DOC = 4
-    PRESENTATION = 5
-    SPREADSHEET = 6
-    IMAGE = 7
-    HTML = 8
+    HTML = 4
+    SPREADSHEET = 5
+    PDF = 6
+    PRESENTATION = 7
+    IMAGE = 8

@@ -1,5 +1,6 @@
 from file_data.file_info import FileInfo
 from file_data.file_type_enum import FileType
+from hashers.hash_type_enum import HashType
 
 class Sorter():
     def __init__(self, unsorted_files : list[FileInfo]):
@@ -13,10 +14,17 @@ class Sorter():
             self.sorted_file_infos[file_info.get_type()].append(file_info)            
         return self.sorted_file_infos
 
-    def sort_by_hash(self, file_infos_type : list[FileType]) -> list[FileType]:
-        """Sort hashes of file_info
-        s of one file type list, if it is possible."""
-        return sorted(
-            (file for file in file_infos_type if file.get_hash() >= 0),
-            key=lambda file_info: file_info.get_hash()
-        )
+    def sort_by_hash(self, file_type : FileType, file_infos_type : list[FileType]) -> dict:
+        """Sort hashes of file_infos of one file type list, if it is possible."""
+        sorted_by_hash = {}
+        if 1 <= file_type.value <= 7:
+            sorted_by_hash[HashType.TEXT] =  sorted(
+                (file for file in file_infos_type if file.get_text_hash()),
+                key=lambda file_info: file_info.get_text_hash()
+            )
+        if file_type.value >= 6:
+            sorted_by_hash[HashType.IMAGE] = sorted(
+                (file for file in file_infos_type if file.get_image_hash()),
+                key=lambda file_info: file_info.get_image_hash()
+            )
+        return sorted_by_hash

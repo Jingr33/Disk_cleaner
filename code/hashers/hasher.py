@@ -34,40 +34,35 @@ class Hasher():
         hashing_info = ConsoleWriter.get_hash_counting_info()
 
         hashing_info['start']()
+        by_hash_sorted_files = {}
         for file_type, one_type_files in sorted_files.items():
             for file_info in tqdm(one_type_files, desc=hashing_info['hashing'](file_type.name), unit='file'):
-                file_info.set_hash(hashers[file_type].extract_hash(file_info))
-            one_type_files = self._sorter.sort_by_hash(one_type_files)
+                file_info.set_text_hash(hashers[file_type].extract_text_hash(file_info))
+                file_info.set_image_hash(hashers[file_type].extract_image_hash(file_info))
+            by_hash_sorted_files[file_type] = self._sorter.sort_by_hash(file_type, one_type_files)
 
         hashing_info['end']()
         self._logger.log_corrupted_files()
-        return sorted_files
+        return by_hash_sorted_files
         
-    def _sequence_matcher(hash1: str, hash2: str) -> float:
+    def sequence_matcher(hash1: str, hash2: str) -> float:
         """Count percentual similarity of two files."""
         if hash1 == hash2:
             return 1
         return 0
 
-    def _hamming_similarity_simhash(simhash1 : int, simhash2 : int) -> float:
+    def hamming_similarity_simhash(simhash1 : int, simhash2 : int) -> float:
         """Return percentage similarity of two simhashes."""
+        if not simhash1 or not simhash2:
+            return 0
         hamming_distance = bin(simhash1 ^ simhash2).count('1')
         similarity = (1 - hamming_distance / 64)
         return round(similarity, 2)
 
-    def _hamming_distance_images(hash1 : int, hash2 : int) -> int:
+    def hamming_distance_images(hash1 : int, hash2 : int) -> float:
         """Return percentage similarity of two image hashes."""
+        if not hash1 or not hash2:
+            return 0
         hamming_distance = abs(hash1 - hash2)
         similarity = (1 - hamming_distance / 64)
         return round(similarity, 2)
-
-    def similarity_score(hash1, hash2, file_type) -> float:
-        """Return similarity score (percentage) of two hashes."""
-        if not hash1 or not hash2:
-            return 0
-        if file_type in ['text', 'doc', 'docx', 'pdf']:
-            return Hasher._hamming_similarity_simhash(hash1, hash2)
-        elif file_type == 'image':
-            return Hasher._hamming_distance_images(hash1, hash2)
-        else:
-            return Hasher._sequence_matcher(str(hash1), str(hash2))

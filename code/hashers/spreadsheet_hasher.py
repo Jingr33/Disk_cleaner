@@ -7,7 +7,7 @@ class SpreadsheetHasher(TextHasher):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, file_info : FileInfo) -> str:
+    def extract_text_hash(self, file_info : FileInfo) -> str:
         """Extract spreadsheet file, return content as a string."""
         try:
             path = file_info.get_path()
@@ -21,3 +21,7 @@ class SpreadsheetHasher(TextHasher):
         except Exception as e:
             self.logger.add_to_corrupted(file_info, e)
             return None
+
+    def extract_image_hash(self, file_info : FileInfo):
+        """Extract image hash from spreadsheet file -> None in this case."""
+        return super().extract_image_hash(file_info)

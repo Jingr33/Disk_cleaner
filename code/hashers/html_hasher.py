@@ -7,7 +7,7 @@ class HtmlHasher(TextHasher):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_hash(self, file_info : FileInfo) -> int:
+    def extract_text_hash(self, file_info : FileInfo) -> int:
         """Extract html code, count and return simhash of a file."""
         html_contetnt = ''
         try:
@@ -18,3 +18,7 @@ class HtmlHasher(TextHasher):
         except Exception as e:
             self.logger.add_to_corrupted(file_info, e)
         return self.extract_hash_from_text(html_contetnt)
+
+    def extract_image_hash(self, file_info : FileInfo):
+        """Extract image hash from a file -> None in this case."""
+        return super().extract_image_hash(file_info)

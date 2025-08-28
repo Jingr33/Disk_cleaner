@@ -2,4 +2,5 @@ backup
 to_clean
 *.csv
 __*
+disk_cleaner.py
 TODO

@@ -1,5 +1,4 @@
 from pathlib import Path
-from tqdm import tqdm
 from abc import ABC, abstractmethod
 
 from file_data.file_info import FileInfo
@@ -72,47 +71,3 @@ class RemoverBase(ABC):
         ConsoleWriter.detect_same_name_files()
         duplicity_names = RemoverBase._find_same_names_files(sorted_file_infos)
         RemoverBase._remove_duplicate_name_files(duplicity_names)
-
-    def _find_same_names_files(sorted_file_infos: dict) -> list[tuple]:
-        """Find all pairs of files with identical names."""
-        duplicities = []
-        total_pairs = sum(
-            len(file_info) * (len(file_info) - 1) // 2 for file_info in sorted_file_infos.values() if len(file_info) > 1
-        )
-        with tqdm(total=total_pairs, desc=ConsoleWriter.detect_same_name_files(), unit='pair') as pbar:
-            for _, file_infos in sorted_file_infos.items():
-                if len(file_infos) <= 1:
-                    continue
-                for fi1_idx in range(len(file_infos)):
-                    name1 = file_infos[fi1_idx].get_name()
-                    for f2_idx in range(fi1_idx + 1, len(file_infos)):
-                        name2 = file_infos[f2_idx].get_name()
-                        if name1 == name2:
-                            duplicities.append((file_infos[fi1_idx], file_infos[f2_idx]))
-                        pbar.update(1)
-        ConsoleWriter.same_name_files_count(len(duplicities))
-        return duplicities
-
-    def _remove_duplicate_name_files(name_duplicities : list[tuple]) -> None:
-        remove_all_automaticly = False
-        while len(name_duplicities):
-            (fi1, fi2) = name_duplicities[0]
-            user_input = 'n'
-            ConsoleWriter.duplicity_file_name_detected(fi1, fi2)
-            if not remove_all_automaticly:
-                user_input = ConsoleWriter.ask_remove_duplicity_name_files()
-
-            if user_input == 'All' or remove_all_automaticly:
-                    name_duplicities = RemoverBase._remove_duplicate_name_file(name_duplicities, 0)
-                    remove_all_automaticly = True
-            elif user_input == 'Y':
-                name_duplicities = RemoverBase._remove_duplicate_name_file(name_duplicities, 0)
-            else:
-                del name_duplicities[0]
-        ConsoleWriter.duplicity_names_removing_completed()
-
-    def _remove_duplicate_name_file(duplicities : list[tuple], index : int) -> list[tuple]:
-        duplicity = duplicities.pop(index)
-        duplicity[1].unlink()
-        ConsoleWriter.file_deleted(duplicity[1], True)
-        return duplicities

@@ -60,8 +60,13 @@ class ConsoleWriter():
         path = ConsoleWriter._get_path_type(file_info, long_path)
         if input(f'Do you want to delete the file {path}? (Y/n)\n') == 'Y':
             return True
-        console.print(f'File {path} was [yellow]saved[/].')
+        ConsoleWriter.file_saved(file_info, long_path)
         return False
+
+    def file_saved(file_info : FileInfo, long_path : bool = False) -> None:
+        path = ConsoleWriter._get_path_type(file_info, long_path)
+        ConsoleWriter._spacer()
+        console.print(f'File {path} was [yellow]saved[/].')
 
     def file_still_open() -> None:
         """if one of processed files is open, print alert and stop process for a while."""
@@ -75,17 +80,18 @@ class ConsoleWriter():
 
     def detect_same_name_files() -> str:
         """Deteciting files with idetical name is in prograss information."""
-        return 'Detecting files with identical name...'
+        return '\nDetecting files with identical name...'
 
-    def same_name_files_count(pair_count : int) -> None:
+    def same_name_files_count(duplicity_count : int) -> None:
         """Detecting files with identical name is completed, 
         add info about files count."""
-        print(f'{pair_count} pairs of files with same name was detected.')
+        print(f'{duplicity_count} files with same name was detected.')
 
-    def duplicity_file_name_detected(file_info1 : FileInfo, file_info2 : FileInfo) -> None:
+    def duplicity_file_name_detected(file_infos : list[FileInfo]) -> None:
         """Inform about file name duplicity."""
+        folders_str = '\n'.join(str(file_info.get_folder()) for file_info in file_infos)        
         ConsoleWriter._spacer()
-        print(f'Duplicate file name {file_info1.get_name()} was detected in folders\n{file_info1.get_folder()}\n{file_info2.get_folder()}.')
+        print(f'Duplicate file name {file_infos[0].get_name()} was detected in folders\n{folders_str}.')
 
     def ask_remove_duplicity_name_files() -> str:
         """Ask user if he want to remove or keep one of the duplicity name files."""

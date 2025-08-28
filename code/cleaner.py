@@ -22,6 +22,7 @@ class Cleaner():
         self._prepare_for_cleaning()
         self._remove_wave_starters(args.wavers)
         self._clean_with_hash_comparer(args.clean)
+        self._remove_same_name_files(args.names)
 
     def _set_disk_root(self, root_arg : argparse.Namespace) -> str:
         """Set root folder of the disk depends on args."""
@@ -73,6 +74,11 @@ class Cleaner():
         """Clean the disk with hash comparsion method."""
         if clean_arg:
             self._remover.hash_based_pruning(self.sorted_by)
+
+    def _remove_same_name_files(self, names_arg : argparse.Namespace):
+        """Check eventually remove files with same names."""
+        if names_arg:
+            self._remover.delete_duplicity_name_files(self.sorted_file_infos)
 
     def select_entered_file_types(self) -> None:
         """Ask user for file types to pruning.

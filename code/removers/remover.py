@@ -2,6 +2,7 @@ from removers.by_text_remover import ByTextRemover
 from removers.by_image_remover import ByImageRemover
 from removers.by_text_and_image_remover import ByTextAndImageRemover
 from removers.by_text_or_image_remover import ByTextOrImageRemover
+from removers.duplicity_names_remover import DuplicityNamesRemover
 from file_data.file_info import FileInfo
 
 class Remover():
@@ -22,3 +23,6 @@ class Remover():
                 self._by_text_or_image_remover.hash_based_pruning_of_type(sorted_file_infos[file_type])
             elif file_type.value == 8:
                 self._by_image_remover.hash_based_pruning_of_type(sorted_file_infos[file_type])
+
+    def delete_duplicity_name_files(self, sorted_file_infos : dict) -> None:
+        DuplicityNamesRemover(sorted_file_infos)

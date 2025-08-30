@@ -1,9 +1,9 @@
-from pathlib import Path
 import os
 from abc import ABC, abstractmethod
 
 from file_data.file_info import FileInfo
-from file_data.type_simliarity_thresholds import SIM_THRESHOLDS
+from removers.type_simliarity_thresholds import SIM_THRESHOLDS
+from removers.similarity_threshold_keys_enum import SimThreshold
 from backuper import Backuper
 from console_writer import ConsoleWriter
 
@@ -35,7 +35,7 @@ class RemoverBase(ABC):
 
     def _manage_remove(self, sim_score : float, file_infos : list[FileInfo], fi1_idx : int, fi2_idx : int) -> None:
         """Based on sim_score it decides what type of removal to use and applies it."""
-        if (sim_score >= SIM_THRESHOLDS[file_infos[fi1_idx].get_type()]['auto_remove_sim']
+        if (sim_score >= SIM_THRESHOLDS[file_infos[fi1_idx].get_type()][SimThreshold.AUTO_REMOVE]
         and file_infos[fi1_idx].is_auto_removable()):
             file_infos = self._remove_file_automaticly(file_infos, fi1_idx)
         else:

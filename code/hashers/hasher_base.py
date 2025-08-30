@@ -10,11 +10,6 @@ class HasherBase(ABC):
         self.logger = logger
 
     @abstractmethod
-    def extract_text_hash(self, file_info : FileInfo) -> int:
-        """Extract text hash from a file."""
-        pass
-
-    @abstractmethod
-    def extract_image_hash(self, file_info : FileInfo) -> int:
-        """Extract image phash from a file."""
+    def extract_hashes(self, file_info : FileInfo) -> None:
+        """Abstract -> Extract hashes of the file, set hashes into file_info object."""
         pass

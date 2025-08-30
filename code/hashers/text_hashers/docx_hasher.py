@@ -3,14 +3,14 @@ from zipfile import is_zipfile
 import docx
 import re
 
+from hashers.text_hashers.text_hasher_base import TextHasherBase
 from file_data.file_info import FileInfo
-from hashers.doc_hasher import DocHasher
 
-class DocxHasher(DocHasher):
+class DocxHasher(TextHasherBase):
     def __init__(self, sorter, logger):
         super().__init__(sorter, logger)
 
-    def extract_text_hash(self, file_info : FileInfo) -> str:
+    def _extract_text(self, file_info : FileInfo) -> str:
         """Extract docx file, return simhash of a file."""
         path = file_info.get_path()
         text = None
@@ -20,17 +20,13 @@ class DocxHasher(DocHasher):
                 text =  self.normalize_text('\n'.join([para.text for para in doc.paragraphs]))
         except Exception as e:
             self.logger.add_to_corrupted(file_info, e)
-        return self.extract_hash_from_text(text)
+        return text
 
-    def extract_image_hash(self, file_info : FileInfo):
-        """Extract image hash from a file -> None in this case."""
-        return super().extract_image_hash(file_info)
-        
     def is_probably_valid_docx(path: Path) -> bool:
         """Check, if file is valid docx."""
         return path.suffix.lower() == '.docx' and is_zipfile(path)
 
     def normalize_text(self, text: str) -> str:
         text = text.lower()
-        text = re.sub(r'\s+', ' ', text)  # sjednotit mezery
+        text = re.sub(r'\s+', ' ', text)
         return text.strip()

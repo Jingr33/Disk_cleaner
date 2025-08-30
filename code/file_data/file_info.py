@@ -9,6 +9,7 @@ class FileInfo():
         self._type = None
         self._text_hash = None
         self._image_hash = None
+        self._plain_text = None
         self.auto_removable = True
         self._error = None
         self._restore_path = None
@@ -59,6 +60,10 @@ class FileInfo():
         """Set _restore_path for restore from bin."""
         self._restore_path = self._path
 
+    def set_text(self, text : str) -> None:
+        """Set plain text of the file."""
+        self._plain_text = text
+
     def get_path(self) -> Path:
         """Return path of the file."""
         return self._path
@@ -108,6 +113,10 @@ class FileInfo():
     def get_restore_path(self) -> Path:
         """Return restore path of the file."""
         return self._restore_path
+
+    def get_text(self) -> str:
+        """Return text of the file."""
+        return self._plain_text
 
     def is_auto_removable(self) -> bool:
         """Return, if file is automatically removable."""

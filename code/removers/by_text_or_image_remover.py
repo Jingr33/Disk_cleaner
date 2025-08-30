@@ -1,6 +1,7 @@
 from removers.remover_base import RemoverBase
 from file_data.file_info import FileInfo
-from file_data.type_simliarity_thresholds import SIM_THRESHOLDS
+from removers.type_simliarity_thresholds import SIM_THRESHOLDS
+from removers.similarity_threshold_keys_enum import SimThreshold
 from backuper import Backuper
 from hashers.hasher import Hasher
 from hashers.hash_type_enum import HashType
@@ -23,20 +24,27 @@ class ByTextOrImageRemover(RemoverBase):
         fi2_idx = fi1_idx - 1
         file_info2 = file_infos[fi2_idx]
         file_info1 = file_infos[fi1_idx]
-        text_sim_score = Hasher.hamming_similarity_simhash(file_info1.get_text_hash(), file_info2.get_text_hash())
-        img_sim_score = Hasher.hamming_similarity_simhash(file_info1.get_image_hash(), file_info2.get_image_hash())
 
-        if text_sim_score >= SIM_THRESHOLDS[file_info1.get_type()]['txt_min_sim'] and compared_hash_type == HashType.TEXT:
-            self._manage_remove((text_sim_score, img_sim_score), file_infos, fi1_idx, fi2_idx)
-        elif img_sim_score >= SIM_THRESHOLDS[file_info1.get_type()]['img_min_sim'] and compared_hash_type == HashType.IMAGE:
-            self._manage_remove((img_sim_score, text_sim_score), file_infos, fi1_idx, fi2_idx)
+        simhash_score = Hasher.hamming_similarity_simhash(file_info1.get_text_hash(), file_info2.get_text_hash())
+        phash_score = Hasher.hamming_similarity_simhash(file_info1.get_image_hash(), file_info2.get_image_hash())
+        type = file_info1.get_type()
+        if simhash_score >= SIM_THRESHOLDS[type][SimThreshold.SIMHASH_MIN] and compared_hash_type == HashType.TEXT:
+            levenshtein_score = Hasher.levenshtein_text_similarity(file_info1.get_text(), file_info2.get_text())
+            if levenshtein_score >= SIM_THRESHOLDS[type][SimThreshold.LEVENSHTEIN_MIN]:
+                self._manage_remove((levenshtein_score, phash_score), file_infos, fi1_idx, fi2_idx)
+        elif phash_score >= SIM_THRESHOLDS[type][SimThreshold.PHASH_MIN] and compared_hash_type == HashType.IMAGE:
+            levenshtein_score = Hasher.levenshtein_text_similarity(file_info1.get_text(), file_info2.get_text())
+            self._manage_remove((phash_score, levenshtein_score), file_infos, fi1_idx, fi2_idx, True)
 
-    def _manage_remove(self, sim_score : tuple[float], file_infos : list[FileInfo], fi1_idx : int, fi2_idx : int) -> None:
+    def _manage_remove(self, sim_score : tuple[float], file_infos : list[FileInfo], fi1_idx : int, fi2_idx : int,
+                       switch_scores : bool = False) -> None:
         """Based on sim_score it decides what type of removal to use and applies it."""
         (main_score, second_score) = sim_score
-        auto_remove_sim = SIM_THRESHOLDS[file_infos[fi1_idx].get_type()]['auto_remove_sim']
+        auto_remove_sim = SIM_THRESHOLDS[file_infos[fi1_idx].get_type()][SimThreshold.AUTO_REMOVE]
         if (main_score >= auto_remove_sim and second_score >= auto_remove_sim
             and file_infos[fi1_idx].is_auto_removable() and file_infos[fi2_idx].is_auto_removable()):
             file_infos = self._remove_file_automaticly(file_infos, fi1_idx)
         else:
+            if switch_scores:
+                sim_score = (second_score, main_score)
             file_infos = self._ask_for_remove(file_infos, sim_score, fi1_idx - 1, fi1_idx)

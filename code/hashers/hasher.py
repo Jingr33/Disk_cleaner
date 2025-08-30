@@ -1,12 +1,13 @@
 from tqdm import tqdm
+from rapidfuzz import fuzz
 
-from hashers.text_hasher import TextHasher
-from hashers.docx_hasher import DocxHasher
-from hashers.pdf_hasher import PdfHasher
-from hashers.image_hasher import ImageHasher
-from hashers.spreadsheet_hasher import SpreadsheetHasher
-from hashers.presentation_hasher import PresentationHasher
-from hashers.html_hasher import HtmlHasher
+from hashers.text_hashers.text_hasher import TextHasher
+from hashers.text_hashers.docx_hasher import DocxHasher
+from hashers.combined_hashers.pdf_hasher import PdfHasher
+from hashers.phash_hashers.image_hasher import ImageHasher
+from hashers.text_hashers.spreadsheet_hasher import SpreadsheetHasher
+from hashers.combined_hashers.presentation_hasher import PresentationHasher
+from hashers.text_hashers.html_hasher import HtmlHasher
 from hashers.other_hasher import OtherHasher
 from file_data.file_type_enum import FileType
 from console_writer import ConsoleWriter
@@ -37,8 +38,7 @@ class Hasher():
         by_hash_sorted_files = {}
         for file_type, one_type_files in sorted_files.items():
             for file_info in tqdm(one_type_files, desc=hashing_info['hashing'](file_type.name), unit='file'):
-                file_info.set_text_hash(hashers[file_type].extract_text_hash(file_info))
-                file_info.set_image_hash(hashers[file_type].extract_image_hash(file_info))
+                hashers[file_type].extract_hashes(file_info)
             by_hash_sorted_files[file_type] = self._sorter.sort_by_hash(file_type, one_type_files)
 
         hashing_info['end']()
@@ -67,3 +67,7 @@ class Hasher():
         hamming_distance = bin(xored).count("1")
         similarity = 1 - (hamming_distance / 64)
         return round(similarity, 2)
+
+    def levenshtein_text_similarity(text1 : str, text2 : str) -> float:
+        """Return similarity counted as a Levenshtein similarity hash."""
+        return fuzz.ratio(text1, text2) / 100

@@ -86,7 +86,9 @@ class Cleaner():
         """Ask user for file types to pruning.
         Keep only selected and non-empty keys in sorted dict. """
         user_input = ConsoleWriter.select_file_types_input()
+        if user_input.lower() == 'all':
+            return self.sorted_file_infos
         self.sorted_file_infos = {
-            k: v for k, v in self.sorted_file_infos.items()
-            if k.name.lower() in user_input.lower() and v
+            key: value for key, value in self.sorted_file_infos.items()
+            if key.name.lower() in user_input.lower() and value
         }

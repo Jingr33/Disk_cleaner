@@ -65,7 +65,6 @@ class ConsoleWriter():
 
     def file_saved(file_info : FileInfo, long_path : bool = False) -> None:
         path = ConsoleWriter._get_path_type(file_info, long_path)
-        ConsoleWriter._spacer()
         console.print(f'File {path} was [yellow]saved[/].')
 
     def file_still_open() -> None:

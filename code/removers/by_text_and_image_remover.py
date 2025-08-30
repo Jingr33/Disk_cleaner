@@ -1,9 +1,9 @@
 from removers.remover_base import RemoverBase
 from file_data.file_info import FileInfo
+from file_data.type_simliarity_thresholds import SIM_THRESHOLDS
 from backuper import Backuper
 from hashers.hasher import Hasher
 from hashers.hash_type_enum import HashType
-from config import AUTO_REMOVE_SIMILARITY, MIN_SIMILARITY
 
 class ByTextAndImageRemover(RemoverBase):
     def __init__(self, file_infos : list[FileInfo], backuper : Backuper) -> None:
@@ -24,13 +24,14 @@ class ByTextAndImageRemover(RemoverBase):
         text_sim_score = Hasher.hamming_similarity_simhash(file_info2.get_text_hash(), file_info1.get_text_hash())
         img_sim_score = Hasher.hamming_similarity_simhash(file_info2.get_image_hash(), file_info1.get_image_hash())
 
-        if text_sim_score >= MIN_SIMILARITY:
+        if text_sim_score >= SIM_THRESHOLDS[file_info1.get_type()]['txt_min_sim']:
             self._manage_remove((text_sim_score, img_sim_score), file_infos, fi1_idx, fi2_idx)
 
     def _manage_remove(self, sim_score : tuple[float], file_infos : list[FileInfo], fi1_idx : int, fi2_idx : int) -> None:
         """Based on sim_score it decides what type of removal to use and applies it."""
         (text_sim_score, img_sim_score) = sim_score
-        if ((text_sim_score >= AUTO_REMOVE_SIMILARITY or img_sim_score >= AUTO_REMOVE_SIMILARITY)
+        auto_remove_sim = SIM_THRESHOLDS[file_infos[fi1_idx].get_type()]['auto_remove_sim']
+        if ((text_sim_score >= auto_remove_sim or img_sim_score >= auto_remove_sim)
             and file_infos[fi1_idx].is_auto_removable() and file_infos[fi2_idx].is_auto_removable()):
             file_infos = self._remove_file_automaticly(file_infos, fi1_idx)
         else:

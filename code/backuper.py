@@ -10,7 +10,7 @@ class Backuper():
 
     def _create_bin_folder(self) -> None:
         """Create bin folder if the folder doesnt exists."""
-        bin_path = os.path.join(ROOT_FOLDER, BIN_FOLDER_NAME)
+        bin_path = os.path.join(f'{ROOT_FOLDER}_{BIN_FOLDER_NAME}')
         if not os.path.exists(bin_path):
             os.mkdir(bin_path)
         return bin_path

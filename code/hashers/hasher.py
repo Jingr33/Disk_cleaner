@@ -51,18 +51,19 @@ class Hasher():
             return 1
         return 0
 
-    def hamming_similarity_simhash(simhash1 : int, simhash2 : int) -> float:
+    def hamming_similarity_simhash(simhash1 : int, simhash2 : int, bits = 128) -> float:
         """Return percentage similarity of two simhashes."""
         if not simhash1 or not simhash2:
-            return 0
+            return 0.0
         hamming_distance = bin(simhash1 ^ simhash2).count('1')
-        similarity = (1 - hamming_distance / 64)
+        similarity = (1 - hamming_distance / bits)
         return round(similarity, 2)
 
     def hamming_distance_images(hash1 : int, hash2 : int) -> float:
         """Return percentage similarity of two image hashes."""
         if not hash1 or not hash2:
-            return 0
-        hamming_distance = abs(hash1 - hash2)
-        similarity = (1 - hamming_distance / 64)
+            return 0.0
+        xored = hash1 ^ hash2
+        hamming_distance = bin(xored).count("1")
+        similarity = 1 - (hamming_distance / 64)
         return round(similarity, 2)

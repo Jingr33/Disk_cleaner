@@ -2,8 +2,8 @@ from removers.remover_base import RemoverBase
 from hashers.hasher import Hasher
 from backuper import Backuper
 from file_data.file_info import FileInfo
+from file_data.type_simliarity_thresholds import SIM_THRESHOLDS
 from hashers.hash_type_enum import HashType
-from config import MIN_SIMILARITY
 
 class ByImageRemover(RemoverBase):
     def __init__(self, file_infos : list[FileInfo], backuper : Backuper) -> None:
@@ -21,6 +21,7 @@ class ByImageRemover(RemoverBase):
         fi2_idx = fi1_idx - 1
         file_info1 = file_infos[fi2_idx]
         file_info2 = file_infos[fi1_idx]
-        sim_score = Hasher.hamming_distance_images(file_info2.get_image_hash(), file_info1.get_image_hash() )
-        if sim_score >= MIN_SIMILARITY:
+        sim_score = Hasher.hamming_distance_images(file_info2.get_image_hash(), file_info1.get_image_hash())
+        print(sim_score)
+        if sim_score >= SIM_THRESHOLDS[file_info1.get_type()]['img_min_sim']:
             self._manage_remove(sim_score, file_infos, fi1_idx, fi2_idx)

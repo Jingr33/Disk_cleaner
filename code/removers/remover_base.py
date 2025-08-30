@@ -3,9 +3,9 @@ import os
 from abc import ABC, abstractmethod
 
 from file_data.file_info import FileInfo
+from file_data.type_simliarity_thresholds import SIM_THRESHOLDS
 from backuper import Backuper
 from console_writer import ConsoleWriter
-from config import AUTO_REMOVE_SIMILARITY
 
 class RemoverBase(ABC):
     def __init__(self, file_infos : list[FileInfo], backuper : Backuper):
@@ -35,7 +35,8 @@ class RemoverBase(ABC):
 
     def _manage_remove(self, sim_score : float, file_infos : list[FileInfo], fi1_idx : int, fi2_idx : int) -> None:
         """Based on sim_score it decides what type of removal to use and applies it."""
-        if sim_score >= AUTO_REMOVE_SIMILARITY and file_infos[fi1_idx].is_auto_removable():
+        if (sim_score >= SIM_THRESHOLDS[file_infos[fi1_idx].get_type()]['auto_remove_sim']
+        and file_infos[fi1_idx].is_auto_removable()):
             file_infos = self._remove_file_automaticly(file_infos, fi1_idx)
         else:
             file_infos = self._ask_for_remove(file_infos, sim_score, fi2_idx, fi1_idx)

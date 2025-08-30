@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from file_data.file_info import FileInfo
 from removers.type_simliarity_thresholds import SIM_THRESHOLDS
 from removers.similarity_threshold_keys_enum import SimThreshold
-from backuper import Backuper
+from backuper.backuper import Backuper
 from console_writer import ConsoleWriter
 
 class RemoverBase(ABC):

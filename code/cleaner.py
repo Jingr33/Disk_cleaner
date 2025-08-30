@@ -4,7 +4,7 @@ from pathlib import Path
 import argparse
 
 from file_data.file_info import FileInfo
-from backuper import Backuper
+from backuper.backuper import Backuper
 from removers.remover import Remover
 from sorter import Sorter
 from logger import Logger
@@ -20,6 +20,7 @@ class Cleaner():
         self.sorted_file_infos = {}
         self.sorted_by = {}
         self._init_dependencies()
+        self._restore_bin(args.restore_bin)
         self._prepare_for_cleaning()
         self._remove_wave_starters(args.wavers)
         self._clean_with_hash_comparer(args.clean)
@@ -36,10 +37,10 @@ class Cleaner():
         return root
 
     def _init_dependencies(self) -> None:
-        self._backuper = Backuper()
+        self._logger = Logger()
+        self._backuper = Backuper(self._logger)
         self._remover = Remover(self.all_file_info, self._backuper)
         self._sorter = Sorter(self.all_file_info)
-        self._logger = Logger()
         self._hasher = Hasher(self._sorter, self._logger)
 
     def _explore_disk(self, folder_path : str, files : list[Path], 
@@ -59,6 +60,11 @@ class Cleaner():
             ConsoleWriter.explore_files_progress(self.total_files, False)
         return files
  
+    def _restore_bin(self, restore_bin_arg : argparse.Namespace) -> None:
+        """Restore files from a disk bin."""
+        if restore_bin_arg:
+            self._backuper.restore_bin()
+
     def _prepare_for_cleaning(self) -> None:
         """Preparedata structures for cleaning 
         (sorted_files, file_with_hashes, pick ifles to process.)"""

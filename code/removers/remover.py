@@ -3,7 +3,7 @@ from removers.by_image_remover import ByImageRemover
 from removers.by_text_and_image_remover import ByTextAndImageRemover
 from removers.by_text_or_image_remover import ByTextOrImageRemover
 from removers.duplicity_names_remover import DuplicityNamesRemover
-from backuper import Backuper
+from backuper.backuper import Backuper
 from file_data.file_info import FileInfo
 
 class Remover():

@@ -1,7 +1,7 @@
 from tqdm import tqdm
 
 from file_data.file_info import FileInfo
-from backuper import Backuper
+from backuper.backuper import Backuper
 from console_writer import ConsoleWriter
 
 class DuplicityNamesRemover():

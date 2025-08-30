@@ -2,7 +2,7 @@ from removers.remover_base import RemoverBase
 from file_data.file_info import FileInfo
 from removers.type_simliarity_thresholds import SIM_THRESHOLDS
 from removers.similarity_threshold_keys_enum import SimThreshold
-from backuper import Backuper
+from backuper.backuper import Backuper
 from hashers.hasher import Hasher
 from hashers.hash_type_enum import HashType
 

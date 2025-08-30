@@ -2,7 +2,7 @@ from removers.by_text_remover import ByTextRemover
 from removers.by_image_remover import ByImageRemover
 from removers.by_text_and_image_remover import ByTextAndImageRemover
 from removers.by_text_or_image_remover import ByTextOrImageRemover
-from backuper import Backuper
+from backuper.backuper import Backuper
 from file_data.file_info import FileInfo
 
 class Remover():

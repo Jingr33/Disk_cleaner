@@ -1,6 +1,6 @@
 from removers.remover_base import RemoverBase
 from hashers.hasher import Hasher
-from backuper import Backuper
+from backuper.backuper import Backuper
 from file_data.file_info import FileInfo
 from hashers.hash_type_enum import HashType
 from config import MIN_SIMILARITY

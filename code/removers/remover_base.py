@@ -3,7 +3,7 @@ from tqdm import tqdm
 from abc import ABC, abstractmethod
 
 from file_data.file_info import FileInfo
-from backuper import Backuper
+from backuper.backuper import Backuper
 from console_writer import ConsoleWriter
 from config import AUTO_REMOVE_SIMILARITY
 

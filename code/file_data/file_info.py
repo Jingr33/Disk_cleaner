@@ -55,9 +55,11 @@ class FileInfo():
         """Set error of the file."""
         self._error = error
 
-    def set_restore_path(self) -> None:
-        """Set _restore_path for restore from bin."""
-        self._restore_path = self._path
+    def set_restore_path(self, restore_path : Path = None) -> None:
+        """Set restore path for restore from bin."""
+        if not restore_path:
+            restore_path = self.get_path()
+        self._restore_path = restore_path
 
     def get_path(self) -> Path:
         """Return path of the file."""

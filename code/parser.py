@@ -6,4 +6,5 @@ def parse_args():
     parser.add_argument("--wavers", type=bool, help="Remove files whose names start with a tilde character")
     parser.add_argument("--clean", type=bool, default=True, help="Remove similar files (based on hashes or content) from your disk")
     parser.add_argument("--names", type=bool, help="Remove files with the same name")
+    parser.add_argument("--restore_bin", type=bool, help="Restore file from a disk bin to their original destinations.")
     return parser.parse_args()

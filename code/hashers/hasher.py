@@ -2,7 +2,7 @@ from tqdm import tqdm
 from rapidfuzz import fuzz
 
 from hashers.text_hashers.text_hasher import TextHasher
-from hashers.text_hashers.docx_hasher import DocxHasher
+from hashers.text_hashers.word_hasher import WordHasher
 from hashers.combined_hashers.pdf_hasher import PdfHasher
 from hashers.phash_hashers.image_hasher import ImageHasher
 from hashers.text_hashers.spreadsheet_hasher import SpreadsheetHasher
@@ -22,8 +22,7 @@ class Hasher():
         set hash in each FileData object."""   
         hashers = {
             FileType.TEXT : TextHasher(self._sorter, self._logger),
-            FileType.DOCX : DocxHasher(self._sorter, self._logger),
-            FileType.DOC : DocxHasher(self._sorter, self._logger),
+            FileType.WORD : WordHasher(self._sorter, self._logger),
             FileType.PDF : PdfHasher(self._sorter, self._logger),
             FileType.SPREADSHEET : SpreadsheetHasher(self._sorter, self._logger),
             FileType.PRESENTATION : PresentationHasher(self._sorter, self._logger),

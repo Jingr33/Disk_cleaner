@@ -17,13 +17,13 @@ class Remover():
     def hash_based_pruning(self, sorted_file_infos : dict) -> None:
         """Remove similar files (in all file types) depends on phash ratio between two files."""
         for file_type in sorted_file_infos.keys():
-            if 1 <= file_type.value <= 5:
+            if 1 <= file_type.value <= 4:
                 self._by_text_remover.hash_based_pruning_of_type(sorted_file_infos[file_type])
-            elif file_type.value == 6:
+            elif file_type.value == 5:
                 self._by_text_and_image_remover.hash_based_pruning_of_type(sorted_file_infos[file_type])
-            elif file_type.value == 7:
+            elif file_type.value == 6:
                 self._by_text_or_image_remover.hash_based_pruning_of_type(sorted_file_infos[file_type])
-            elif file_type.value == 8:
+            elif file_type.value == 7:
                 self._by_image_remover.hash_based_pruning_of_type(sorted_file_infos[file_type])
 
     def delete_duplicity_name_files(self, sorted_file_infos : dict) -> None:

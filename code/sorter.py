@@ -17,12 +17,12 @@ class Sorter():
     def sort_by_hash(self, file_type : FileType, file_infos_type : list[FileType]) -> dict:
         """Sort hashes of file_infos of one file type list, if it is possible."""
         sorted_by_hash = {}
-        if 1 <= file_type.value <= 7:
+        if 1 <= file_type.value <= 6:
             sorted_by_hash[HashType.TEXT] =  sorted(
                 (file for file in file_infos_type if file.get_text_hash()),
                 key=lambda file_info: file_info.get_text_hash()
             )
-        if file_type.value >= 6:
+        if file_type.value >= 5:
             sorted_by_hash[HashType.IMAGE] = sorted(
                 (file for file in file_infos_type if file.get_image_hash()),
                 key=lambda file_info: file_info.get_image_hash()

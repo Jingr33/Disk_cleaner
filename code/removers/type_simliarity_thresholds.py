@@ -8,13 +8,7 @@ SIM_THRESHOLDS = {
         SimThreshold.PHASH_MIN : None,
         SimThreshold.AUTO_REMOVE : 1.0,
     },
-    FileType.DOC : {
-        SimThreshold.SIMHASH_MIN : 0.7,
-        SimThreshold.LEVENSHTEIN_MIN : 0.7,
-        SimThreshold.PHASH_MIN : None,
-        SimThreshold.AUTO_REMOVE : 1.0,
-    },
-    FileType.DOCX : {
+    FileType.WORD : {
         SimThreshold.SIMHASH_MIN : 0.65,
         SimThreshold.LEVENSHTEIN_MIN : 0.7,
         SimThreshold.PHASH_MIN : None,

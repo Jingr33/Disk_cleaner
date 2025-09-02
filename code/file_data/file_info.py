@@ -19,10 +19,8 @@ class FileInfo():
         """Set a type of the file."""
         if self._suffix in ['.txt', '.md']:
             self._type = FileType.TEXT
-        elif self._suffix == '.docx':
-            self._type = FileType.DOCX
-        elif self._suffix in ['.doc', '.docm']:
-            self._type = FileType.DOC
+        elif self._suffix in ['.doc', '.docm', '.docx']:
+            self._type = FileType.WORD
         elif self._suffix == '.pdf':
             self._type = FileType.PDF
         elif self._suffix in ['.ppt', '.pptx']:

@@ -25,4 +25,4 @@ class ByImageRemover(RemoverBase):
         sim_score = Hasher.hamming_distance_images(file_info2.get_image_hash(), file_info1.get_image_hash())
         print(sim_score)
         if sim_score >= SIM_THRESHOLDS[file_info1.get_type()][SimThreshold.PHASH_MIN]:
-            self._manage_remove(sim_score, file_infos, fi1_idx, fi2_idx)
+            self._manage_remove(sim_score, file_infos, file_info1, file_info2)

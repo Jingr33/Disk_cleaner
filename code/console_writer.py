@@ -56,12 +56,16 @@ class ConsoleWriter():
             (text_score, img_score) = score
             console.print(f'There is a text similarity [blue]{round(text_score * 100, 2)} %[/] and visual similarity [blue]{round(img_score * 100, 2)} %[/] between {path1} and {path2} files.')
 
-    def do_you_want_to_remove_file(file_info : FileInfo, long_path : bool = False) -> bool:
-        path = ConsoleWriter._get_path_type(file_info, long_path)
-        if input(f'Do you want to delete the file {path}? (Y/n)\n') == 'Y':
-            return True
-        ConsoleWriter.file_saved(file_info, long_path)
-        return False
+    def do_you_want_to_remove_file(file_info1 : FileInfo, file_info2 : FileInfo, long_path : bool = False) -> FileInfo:
+        path1 = ConsoleWriter._get_path_type(file_info1, long_path)
+        path2 = ConsoleWriter._get_path_type(file_info2, long_path)
+        user_input = input(f'Which file do you want to delete\n{path1}\nor\n{path2} ?\n(Y - remove default, Y1 - remove first / Y2 - remove second /n)\n')
+        if user_input in ['Y', 'Y1']:
+            return file_info1
+        elif user_input == 'Y2':
+            return file_info2
+        ConsoleWriter.file_saved(file_info1, long_path)
+        return None
 
     def file_saved(file_info : FileInfo, long_path : bool = False) -> None:
         path = ConsoleWriter._get_path_type(file_info, long_path)

@@ -31,20 +31,20 @@ class ByTextOrImageRemover(RemoverBase):
         if simhash_score >= SIM_THRESHOLDS[type][SimThreshold.SIMHASH_MIN] and compared_hash_type == HashType.TEXT:
             levenshtein_score = Hasher.levenshtein_text_similarity(file_info1.get_text(), file_info2.get_text())
             if levenshtein_score >= SIM_THRESHOLDS[type][SimThreshold.LEVENSHTEIN_MIN]:
-                self._manage_remove((levenshtein_score, phash_score), file_infos, fi1_idx, fi2_idx)
+                self._manage_remove((levenshtein_score, phash_score), file_infos, file_info1, file_info2)
         elif phash_score >= SIM_THRESHOLDS[type][SimThreshold.PHASH_MIN] and compared_hash_type == HashType.IMAGE:
             levenshtein_score = Hasher.levenshtein_text_similarity(file_info1.get_text(), file_info2.get_text())
-            self._manage_remove((phash_score, levenshtein_score), file_infos, fi1_idx, fi2_idx, True)
+            self._manage_remove((phash_score, levenshtein_score), file_infos, file_info1, file_info2, True)
 
-    def _manage_remove(self, sim_score : tuple[float], file_infos : list[FileInfo], fi1_idx : int, fi2_idx : int,
+    def _manage_remove(self, sim_score : tuple[float], file_infos : list[FileInfo], file_info1 : FileInfo, file_info2 : FileInfo,
                        switch_scores : bool = False) -> None:
         """Based on sim_score it decides what type of removal to use and applies it."""
         (main_score, second_score) = sim_score
-        auto_remove_sim = SIM_THRESHOLDS[file_infos[fi1_idx].get_type()][SimThreshold.AUTO_REMOVE]
+        auto_remove_sim = SIM_THRESHOLDS[file_info1.get_type()][SimThreshold.AUTO_REMOVE]
         if (main_score >= auto_remove_sim and second_score >= auto_remove_sim
-            and file_infos[fi1_idx].is_auto_removable() and file_infos[fi2_idx].is_auto_removable()):
-            file_infos = self._remove_file_automaticly(file_infos, fi1_idx)
+            and file_info1.is_auto_removable() and file_info2.is_auto_removable()):
+            file_infos = self._remove_file_automaticly(file_infos, file_info1)
         else:
             if switch_scores:
                 sim_score = (second_score, main_score)
-            file_infos = self._ask_for_remove(file_infos, sim_score, fi1_idx - 1, fi1_idx)
+            file_infos = self._ask_for_remove(file_infos, sim_score, file_info1, file_info2)

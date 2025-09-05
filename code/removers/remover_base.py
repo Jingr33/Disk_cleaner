@@ -33,34 +33,35 @@ class RemoverBase(ABC):
         Remove one of files or not depending on hash simiarity."""
         pass
 
-    def _manage_remove(self, sim_score : float, file_infos : list[FileInfo], fi1_idx : int, fi2_idx : int) -> None:
+    def _manage_remove(self, sim_score : float, file_infos : list[FileInfo], file_info1 : FileInfo, file_info2 : FileInfo) -> None:
         """Based on sim_score it decides what type of removal to use and applies it."""
-        if (sim_score >= SIM_THRESHOLDS[file_infos[fi1_idx].get_type()][SimThreshold.AUTO_REMOVE]
-        and file_infos[fi1_idx].is_auto_removable()):
-            file_infos = self._remove_file_automaticly(file_infos, fi1_idx)
+        if (sim_score >= SIM_THRESHOLDS[file_info1.get_type()][SimThreshold.AUTO_REMOVE]
+        and file_info1.is_auto_removable()):
+            file_infos = self._remove_file_automaticly(file_infos, file_info1)
         else:
-            file_infos = self._ask_for_remove(file_infos, sim_score, fi2_idx, fi1_idx)
+            file_infos = self._ask_for_remove(file_infos, sim_score, file_info2, file_info1)
 
-    def _remove_file_automaticly(self, file_infos : list[FileInfo], removing_idx : int) -> list[tuple]:
+    def _remove_file_automaticly(self, file_infos : list[FileInfo], file_info : FileInfo) -> list[tuple]:
         """Remove file from the disk and from file_infos list automaticly."""
-        file_info = file_infos.pop(removing_idx)
+        file_infos.remove(file_info)        
         self._backuper.move_to_bin(file_info)
         ConsoleWriter.file_deleted(file_info)
         return file_infos
 
-    def _ask_for_remove(self, file_infos : list[FileInfo], sim_score : float, idx_fi1 : int, idx_fi2 : int) -> list:
+    def _ask_for_remove(self, file_infos : list[FileInfo], sim_score : float, file_info1 : FileInfo, file_info2 : FileInfo) -> list:
         """Ask user for remove. Manage remove depending on user input."""
-        ConsoleWriter.file_similarity_score(sim_score, file_infos[idx_fi1], file_infos[idx_fi2])
-        os.startfile(file_infos[idx_fi1].get_path())
-        os.startfile(file_infos[idx_fi2].get_path())
+        ConsoleWriter.file_similarity_score(sim_score, file_info1, file_info2)
+        os.startfile(file_info1.get_path())
+        os.startfile(file_info2.get_path())
 
-        if not ConsoleWriter.do_you_want_to_remove_file(file_infos[idx_fi2]):
+        file_to_remove = ConsoleWriter.do_you_want_to_remove_file(file_info1, file_info2)
+        if not file_to_remove:
             return file_infos
         
-        while self._is_file_locked(file_infos[idx_fi1]) or self._is_file_locked(file_infos[idx_fi2]):
+        while self._is_file_locked(file_info1) or self._is_file_locked(file_info2):
             ConsoleWriter.file_still_open()
 
-        return self._remove_file_automaticly(file_infos, idx_fi2)
+        return self._remove_file_automaticly(file_infos, file_to_remove)
 
     def _is_file_locked(self, file_info : FileInfo) -> bool:
         """Check, if file is actualy open."""

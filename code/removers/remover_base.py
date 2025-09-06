@@ -11,15 +11,6 @@ class RemoverBase(ABC):
     def __init__(self, file_infos : list[FileInfo], backuper : Backuper):
         self.file_infos = file_infos
         self._backuper = backuper
-        
-    def delete_wavers(self) -> list[FileInfo]:
-        """Remove all files with tilda beginning names."""
-        for i in range(len(self.file_infos) - 1, -1, -1):
-            if '~' in self.file_infos[i].get_name():
-                file = self.file_infos.pop(i)
-                file.unlink()
-                ConsoleWriter.file_deleted(file)
-        return self.file_infos
 
     def hash_based_pruning_of_type(self, file_infos : list[FileInfo]) -> None:
         """Implemented in children classes -> Compare neighbour hashes in file_infos list.

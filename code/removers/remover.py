@@ -3,6 +3,7 @@ from removers.by_image_remover import ByImageRemover
 from removers.by_text_and_image_remover import ByTextAndImageRemover
 from removers.by_text_or_image_remover import ByTextOrImageRemover
 from removers.duplicity_names_remover import DuplicityNamesRemover
+from removers.wavers_remover import WaversRemover
 from backuper.backuper import Backuper
 from file_data.file_info import FileInfo
 
@@ -28,3 +29,6 @@ class Remover():
 
     def delete_duplicity_name_files(self, sorted_file_infos : dict) -> None:
         DuplicityNamesRemover(sorted_file_infos, self._backuper)
+
+    def delete_wavers(self, file_infos : list[FileInfo], backuper : Backuper) -> list[FileInfo]:
+        return WaversRemover(file_infos, backuper)

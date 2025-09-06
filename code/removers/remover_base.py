@@ -2,15 +2,19 @@ import os
 from abc import ABC, abstractmethod
 
 from file_data.file_info import FileInfo
+from backuper.backuper import Backuper
+from files_assistant import FilesAssistant
 from removers.type_simliarity_thresholds import SIM_THRESHOLDS
 from removers.similarity_threshold_keys_enum import SimThreshold
-from backuper.backuper import Backuper
 from console_writer import ConsoleWriter
 
 class RemoverBase(ABC):
-    def __init__(self, file_infos : list[FileInfo], backuper : Backuper):
+    def __init__(self, file_infos : list[FileInfo],
+                 backuper : Backuper,
+                 files_assistant : FilesAssistant):
         self.file_infos = file_infos
         self._backuper = backuper
+        self._file_assistant = files_assistant
 
     def hash_based_pruning_of_type(self, file_infos : list[FileInfo]) -> None:
         """Implemented in children classes -> Compare neighbour hashes in file_infos list.
@@ -42,22 +46,11 @@ class RemoverBase(ABC):
     def _ask_for_remove(self, file_infos : list[FileInfo], sim_score : float, file_info1 : FileInfo, file_info2 : FileInfo) -> list:
         """Ask user for remove. Manage remove depending on user input."""
         ConsoleWriter.file_similarity_score(sim_score, file_info1, file_info2)
-        os.startfile(file_info1.get_path())
-        os.startfile(file_info2.get_path())
 
+        self._file_assistant.open_files((file_info1, file_info2))
         file_to_remove = ConsoleWriter.do_you_want_to_remove_file(file_info1, file_info2)
         if not file_to_remove:
             return file_infos
         
-        while self._is_file_locked(file_info1) or self._is_file_locked(file_info2):
-            ConsoleWriter.file_still_open()
-
+        self._file_assistant.is_file_occupied((file_info1, file_info2))
         return self._remove_file_automaticly(file_infos, file_to_remove)
-
-    def _is_file_locked(self, file_info : FileInfo) -> bool:
-        """Check, if file is actualy open."""
-        try:
-            with open(file_info.get_path(), 'a'):
-                return False
-        except IOError:
-            return True

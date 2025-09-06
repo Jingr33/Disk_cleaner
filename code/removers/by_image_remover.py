@@ -1,14 +1,17 @@
 from removers.remover_base import RemoverBase
 from hashers.hasher import Hasher
 from backuper.backuper import Backuper
+from files_assistant import FilesAssistant
 from file_data.file_info import FileInfo
 from removers.type_simliarity_thresholds import SIM_THRESHOLDS
 from removers.similarity_threshold_keys_enum import SimThreshold
 from hashers.hash_type_enum import HashType
 
 class ByImageRemover(RemoverBase):
-    def __init__(self, file_infos : list[FileInfo], backuper : Backuper) -> None:
-        super().__init__(file_infos, backuper)
+    def __init__(self, file_infos : list[FileInfo],
+                 backuper : Backuper,
+                 files_assistant : FilesAssistant) -> None:
+        super().__init__(file_infos, backuper, files_assistant)
 
     def hash_based_pruning_of_type(self, file_infos : list[FileInfo]) -> None:
         """Compare neighbour hashes in file_infos list (by image hashes).

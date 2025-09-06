@@ -5,6 +5,7 @@ import argparse
 
 from file_data.file_info import FileInfo
 from backuper.backuper import Backuper
+from files_assistant import FilesAssistant
 from removers.remover import Remover
 from sorter import Sorter
 from logger import Logger
@@ -40,7 +41,8 @@ class Cleaner():
         """Initi all dependencies."""
         self._logger = Logger()
         self._backuper = Backuper(self._logger)
-        self._remover = Remover(self.all_file_info, self._backuper)
+        self._files_assistant = FilesAssistant()
+        self._remover = Remover(self.all_file_info, self._backuper, self._files_assistant)
         self._sorter = Sorter(self.all_file_info)
         self._hasher = Hasher(self._sorter, self._logger)
 
@@ -74,7 +76,7 @@ class Cleaner():
     def _remove_wave_starters(self, wavers_arg : argparse.Namespace) -> None:
         """Remove files with names beginning with tilda."""
         if wavers_arg:
-            self.all_file_info = self._remover.delete_wavers(self.all_file_info, self._backuper)
+            self.all_file_info = self._remover.delete_wavers(self.all_file_info)
     
     def _clean_with_hash_comparer(self, clean_arg : argparse.Namespace):
         """Clean the disk with hash comparsion method."""

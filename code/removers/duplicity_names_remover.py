@@ -2,11 +2,15 @@ from tqdm import tqdm
 
 from file_data.file_info import FileInfo
 from backuper.backuper import Backuper
+from files_assistant import FilesAssistant
 from console_writer import ConsoleWriter
 
 class DuplicityNamesRemover():
-    def __init__(self, sorted_file_infos : dict, backuper : Backuper) -> None:
+    def __init__(self, sorted_file_infos : dict,
+                 backuper : Backuper,
+                 files_assistant : FilesAssistant) -> None:
         self._backuper = backuper
+        self._files_assistant = files_assistant
         self._all_duplicities = {}
         self._find_same_names_files(sorted_file_infos)
         self._remove_duplicate_name_files()
@@ -33,13 +37,17 @@ class DuplicityNamesRemover():
             name = keys[i - 1]
             user_input = 'n'
             ConsoleWriter.duplicity_file_name_detected(self._all_duplicities[name])
+
+            self._files_assistant.open_files(tuple(self._all_duplicities[name]))
             if not remove_all_automaticly:
                 user_input = ConsoleWriter.ask_remove_duplicity_name_files()
 
             if user_input == 'All' or remove_all_automaticly:
+                self._files_assistant.is_file_occupied(tuple(self._all_duplicities[name]))
                 self._all_duplicities[0] = self._remove_duplicate_name_file(self._all_duplicities[name])
                 remove_all_automaticly = True
             elif user_input == 'Y':
+                self._files_assistant.is_file_occupied(tuple(self._all_duplicities[name]))
                 self._all_duplicities[0] = self._remove_duplicate_name_file(self._all_duplicities[name])
             else:
                 ConsoleWriter.file_saved(self._all_duplicities[name][0])

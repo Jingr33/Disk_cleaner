@@ -20,8 +20,8 @@ class Cleaner():
         self.sorted_file_infos = {}
         self.sorted_by = {}
         self._init_dependencies()
+        self._sort_files()
         self._restore_bin(args.restore_bin)
-        self._prepare_for_cleaning()
         self._remove_wave_starters(args.wavers)
         self._clean_with_hash_comparer(args.clean)
         self._remove_same_name_files(args.names)
@@ -37,11 +37,17 @@ class Cleaner():
         return root
 
     def _init_dependencies(self) -> None:
+        """Initi all dependencies."""
         self._logger = Logger()
         self._backuper = Backuper(self._logger)
         self._remover = Remover(self.all_file_info, self._backuper)
         self._sorter = Sorter(self.all_file_info)
         self._hasher = Hasher(self._sorter, self._logger)
+
+    def _sort_files(self) -> None:
+        """Sort files by file types."""
+        self.sorted_file_infos = self._sorter.sort_by_file_type()
+        ConsoleWriter.file_counts(self.sorted_file_infos)
 
     def _explore_disk(self, folder_path : str, files : list[Path], 
                       print_result : bool = False) -> list[Path]:
@@ -64,23 +70,17 @@ class Cleaner():
         """Restore files from a disk bin."""
         if restore_bin_arg:
             self._backuper.restore_bin()
-
-    def _prepare_for_cleaning(self) -> None:
-        """Preparedata structures for cleaning 
-        (sorted_files, file_with_hashes, pick ifles to process.)"""
-        self.sorted_file_infos = self._sorter.sort_by_file_type()
-        ConsoleWriter.file_counts(self.sorted_file_infos)
-        self.select_entered_file_types()
-        self.sorted_by = self._hasher.count_hashes(self.sorted_file_infos)
     
     def _remove_wave_starters(self, wavers_arg : argparse.Namespace) -> None:
         """Remove files with names beginning with tilda."""
         if wavers_arg:
-            self.all_file_info = self._remover.delete_wavers(self.all_file_info)
+            self.all_file_info = self._remover.delete_wavers(self.all_file_info, self._backuper)
     
     def _clean_with_hash_comparer(self, clean_arg : argparse.Namespace):
         """Clean the disk with hash comparsion method."""
         if clean_arg:
+            self.select_entered_file_types()
+            self.sorted_by = self._hasher.count_hashes(self.sorted_file_infos)
             self._remover.hash_based_pruning(self.sorted_by)
 
     def _remove_same_name_files(self, names_arg : argparse.Namespace):

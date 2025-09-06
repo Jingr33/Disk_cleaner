@@ -29,8 +29,6 @@ class ByTextAndImageRemover(RemoverBase):
         if simhash_score >= SIM_THRESHOLDS[type][SimThreshold.SIMHASH_MIN]:
             levenshtein_score = Hasher.levenshtein_text_similarity(file_info1.get_text(), file_info2.get_text())
             if levenshtein_score >= SIM_THRESHOLDS[type][SimThreshold.LEVENSHTEIN_MIN]:
-                print(simhash_score)
-                print(levenshtein_score)
                 self._manage_remove((levenshtein_score, phash_score), file_infos, file_info1, file_info2)
 
     def _manage_remove(self, sim_score : tuple[float], file_infos : list[FileInfo], file_info1 : FileInfo, file_info2 : FileInfo) -> None:

@@ -35,7 +35,7 @@ SIM_THRESHOLDS = {
     FileType.PRESENTATION : {
         SimThreshold.SIMHASH_MIN : 0.6,
         SimThreshold.LEVENSHTEIN_MIN : 0.65,
-        SimThreshold.PHASH_MIN : 0.50,
+        SimThreshold.PHASH_MIN : 0.85,
         SimThreshold.AUTO_REMOVE : 1.0,
     },
     FileType.IMAGE : {

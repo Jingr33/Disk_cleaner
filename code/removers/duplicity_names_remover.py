@@ -1,3 +1,5 @@
+import re
+from pathlib import Path
 from tqdm import tqdm
 
 from file_data.file_info import FileInfo
@@ -24,7 +26,7 @@ class DuplicityNamesRemover():
                     continue
                 names = {}
                 for file_info in file_infos:
-                    file_name = file_info.get_name()
+                    file_name = self._normalize_file_name(file_info.get_name())
                     names.setdefault(file_name, []).append(file_info)
                     self._all_duplicities |= {key: value for key, value in names.items() if len(value) > 1}
                 pbar.update(1)
@@ -59,3 +61,20 @@ class DuplicityNamesRemover():
             self._backuper.move_to_bin(file_info)
             ConsoleWriter.file_deleted(file_info, True)
         return duplicities
+
+    def _normalize_file_name(self, file_path : Path) -> str:
+        """Normalize filename (remove copy/number suffixes incl. Czech variants)."""
+        stem = Path(file_path).stem
+        # Remove (1), (2), (123)
+        stem = re.sub(r"\s*\(\d+\)$", "", stem)
+        # Remove EN suffixes: - Copy, Copy of ...
+        stem = re.sub(r"(\s*[-_]?\s*copy(\s*\(\d+\))?)$", "", stem, flags=re.IGNORECASE)
+        stem = re.sub(r"^copy\s+of\s+", "", stem, flags=re.IGNORECASE)
+        # Remove CZ suffixes: - Kopie, Kopie (2)
+        stem = re.sub(r"(\s*[-_]?\s*kopie(\s*\(\d+\))?)$", "", stem, flags=re.IGNORECASE)
+        stem = re.sub(r"^kopie\s+", "", stem, flags=re.IGNORECASE)
+        # Remove ending numbers: _1, -1, 1
+        stem = re.sub(r"(\s*[-_ ]?\d+)$", "", stem)
+        # 6. Remove suffixes: "final", "new", "verze2"
+        stem = re.sub(r"(\s*[-_ ]?(final|new|last|verze?\d+))$", "", stem, flags=re.IGNORECASE)
+        return stem.strip().lower()
